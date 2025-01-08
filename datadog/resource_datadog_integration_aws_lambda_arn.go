@@ -5,8 +5,9 @@ import (
 	"fmt"
 
 	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/utils"
+	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/validators"
 
-	datadogV1 "github.com/DataDog/datadog-api-client-go/api/v1/datadog"
+	"github.com/DataDog/datadog-api-client-go/v2/api/datadogV1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -21,38 +22,46 @@ func buildDatadogIntegrationAwsLambdaArnStruct(d *schema.ResourceData) *datadogV
 
 func resourceDatadogIntegrationAwsLambdaArn() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Provides a Datadog - Amazon Web Services integration Lambda ARN resource. This can be used to create and manage the log collection Lambdas for an account.\n\nUpdate operations are currently not supported with datadog API so any change forces a new resource.",
-		CreateContext: resourceDatadogIntegrationAwsLambdaArnCreate,
-		ReadContext:   resourceDatadogIntegrationAwsLambdaArnRead,
-		DeleteContext: resourceDatadogIntegrationAwsLambdaArnDelete,
+		DeprecationMessage: "**This resource is deprecated - use the `datadog_integration_aws_account` resource instead**: https://registry.terraform.io/providers/DataDog/datadog/latest/docs/resources/integration_aws_account",
+		Description:        "Provides a Datadog - Amazon Web Services integration Lambda ARN resource. This can be used to create and manage the log collection Lambdas for an account.\n\nUpdate operations are currently not supported with datadog API so any change forces a new resource.\n\n**Note**: If you are using AWS GovCloud or the AWS China* region, update the `lambda_arn` parameter for your environment.\n\n *\\*All use of Datadog Services in (or in connection with environments within) mainland China is subject to the disclaimer published in the <a href=\"https://www.datadoghq.com/legal/restricted-service-locations/\">Restricted Service Locations</a> section on our website.*",
+		CreateContext:      resourceDatadogIntegrationAwsLambdaArnCreate,
+		ReadContext:        resourceDatadogIntegrationAwsLambdaArnRead,
+		DeleteContext:      resourceDatadogIntegrationAwsLambdaArnDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
-		Schema: map[string]*schema.Schema{
-			"account_id": {
-				Description: "Your AWS Account ID without dashes. If your account is a GovCloud or China account, specify the `access_key_id` here.",
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true, // waits for update API call support
-			},
-			"lambda_arn": {
-				Description: "The ARN of the Datadog forwarder Lambda.",
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true, // waits for update API call support
-			},
+		SchemaFunc: func() map[string]*schema.Schema {
+			return map[string]*schema.Schema{
+				"account_id": {
+					Description:      "Your AWS Account ID without dashes.",
+					Type:             schema.TypeString,
+					Required:         true,
+					ForceNew:         true, // waits for update API call support
+					ValidateDiagFunc: validators.ValidateAWSAccountID,
+				},
+				"lambda_arn": {
+					Description: "The ARN of the Datadog forwarder Lambda.",
+					Type:        schema.TypeString,
+					Required:    true,
+					ForceNew:    true, // waits for update API call support
+				},
+			}
 		},
 	}
 }
 
 func resourceDatadogIntegrationAwsLambdaArnCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	providerConf := meta.(*ProviderConfiguration)
-	datadogClientV1 := providerConf.DatadogClientV1
-	authV1 := providerConf.AuthV1
+	apiInstances := providerConf.DatadogApiInstances
+	auth := providerConf.Auth
+
+	// shared with datadog_integration_aws resource
+	utils.IntegrationAwsMutex.Lock()
+	defer utils.IntegrationAwsMutex.Unlock()
 
 	attachLambdaArnRequest := buildDatadogIntegrationAwsLambdaArnStruct(d)
-	response, httpresp, err := datadogClientV1.AWSLogsIntegrationApi.CreateAWSLambdaARN(authV1, *attachLambdaArnRequest)
+	response, httpresp, err := apiInstances.GetAWSLogsIntegrationApiV1().CreateAWSLambdaARN(auth, *attachLambdaArnRequest)
 	if err != nil {
 		return utils.TranslateClientErrorDiag(err, httpresp, "error attaching Lambda ARN to AWS integration account")
 	}
@@ -67,20 +76,24 @@ func resourceDatadogIntegrationAwsLambdaArnCreate(ctx context.Context, d *schema
 
 	d.SetId(fmt.Sprintf("%s %s", attachLambdaArnRequest.GetAccountId(), attachLambdaArnRequest.GetLambdaArn()))
 
-	return resourceDatadogIntegrationAwsLambdaArnRead(ctx, d, meta)
+	readDiag := resourceDatadogIntegrationAwsLambdaArnRead(ctx, d, meta)
+	if !readDiag.HasError() && d.Id() == "" {
+		return diag.FromErr(fmt.Errorf("aws integration lambda arn with account id `%s` and lambda arn `%s` not found after creation", attachLambdaArnRequest.GetAccountId(), attachLambdaArnRequest.GetLambdaArn()))
+	}
+	return readDiag
 }
 
 func resourceDatadogIntegrationAwsLambdaArnRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	providerConf := meta.(*ProviderConfiguration)
-	datadogClientV1 := providerConf.DatadogClientV1
-	authV1 := providerConf.AuthV1
+	apiInstances := providerConf.DatadogApiInstances
+	auth := providerConf.Auth
 
 	accountID, lambdaArn, err := utils.AccountAndLambdaArnFromID(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	logCollections, httpresp, err := datadogClientV1.AWSLogsIntegrationApi.ListAWSLogsIntegrations(authV1)
+	logCollections, httpresp, err := apiInstances.GetAWSLogsIntegrationApiV1().ListAWSLogsIntegrations(auth)
 	if err != nil {
 		return utils.TranslateClientErrorDiag(err, httpresp, "error getting aws log integrations for datadog account.")
 	}
@@ -105,8 +118,12 @@ func resourceDatadogIntegrationAwsLambdaArnRead(ctx context.Context, d *schema.R
 
 func resourceDatadogIntegrationAwsLambdaArnDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	providerConf := meta.(*ProviderConfiguration)
-	datadogClientV1 := providerConf.DatadogClientV1
-	authV1 := providerConf.AuthV1
+	apiInstances := providerConf.DatadogApiInstances
+	auth := providerConf.Auth
+
+	// shared with datadog_integration_aws resource
+	utils.IntegrationAwsMutex.Lock()
+	defer utils.IntegrationAwsMutex.Unlock()
 
 	accountID, lambdaArn, err := utils.AccountAndLambdaArnFromID(d.Id())
 	if err != nil {
@@ -114,7 +131,7 @@ func resourceDatadogIntegrationAwsLambdaArnDelete(ctx context.Context, d *schema
 	}
 
 	attachLambdaArnRequest := datadogV1.NewAWSAccountAndLambdaRequest(accountID, lambdaArn)
-	_, httpresp, err := datadogClientV1.AWSLogsIntegrationApi.DeleteAWSLambdaARN(authV1, *attachLambdaArnRequest)
+	_, httpresp, err := apiInstances.GetAWSLogsIntegrationApiV1().DeleteAWSLambdaARN(auth, *attachLambdaArnRequest)
 	if err != nil {
 		return utils.TranslateClientErrorDiag(err, httpresp, "error deleting an AWS integration Lambda ARN")
 	}

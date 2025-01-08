@@ -5,8 +5,9 @@ import (
 	"context"
 	"crypto/sha256"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
@@ -18,125 +19,234 @@ import (
 	"time"
 
 	"github.com/terraform-providers/terraform-provider-datadog/datadog"
-	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/transport"
 	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/utils"
 
-	datadogV1 "github.com/DataDog/datadog-api-client-go/api/v1/datadog"
-	datadogV2 "github.com/DataDog/datadog-api-client-go/api/v2/datadog"
+	common "github.com/DataDog/datadog-api-client-go/v2/api/datadog"
 	ddtesting "github.com/DataDog/dd-sdk-go-testing"
-	"github.com/dnaeon/go-vcr/cassette"
-	"github.com/dnaeon/go-vcr/recorder"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/jonboulle/clockwork"
 	datadogCommunity "github.com/zorkian/go-datadog-api"
 	ddhttp "gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http"
 	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/ext"
 	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
+	"gopkg.in/dnaeon/go-vcr.v3/cassette"
+	"gopkg.in/dnaeon/go-vcr.v3/recorder"
 )
 
 type clockContextKey string
 
-const ddTestOrg = "fasjyydbcgwwc2uc"
-const testAPIKeyEnvName = "DD_TEST_CLIENT_API_KEY"
-const testAPPKeyEnvName = "DD_TEST_CLIENT_APP_KEY"
-const testOrgEnvName = "DD_TEST_ORG"
+const (
+	ddTestOrg         = "fasjyydbcgwwc2uc"
+	testAPIKeyEnvName = "DD_TEST_CLIENT_API_KEY"
+	testAPPKeyEnvName = "DD_TEST_CLIENT_APP_KEY"
+	testAPIUrlEnvName = "DD_TEST_SITE_URL"
+	testOrgEnvName    = "DD_TEST_ORG"
+)
 
 var isTestOrgC *bool
 
+var allowedHeaders = map[string]string{"Accept": "", "Content-Type": ""}
+
 var testFiles2EndpointTags = map[string]string{
-	"tests/data_source_datadog_api_key_test":                           "api_keys",
-	"tests/data_source_datadog_application_key_test":                   "application_keys",
-	"tests/data_source_datadog_dashboard_test":                         "dashboard",
-	"tests/data_source_datadog_dashboard_list_test":                    "dashboard-lists",
-	"tests/data_source_datadog_ip_ranges_test":                         "ip-ranges",
-	"tests/data_source_datadog_logs_indexes_order_test":                "logs-index",
-	"tests/data_source_datadog_monitor_test":                           "monitors",
-	"tests/data_source_datadog_monitors_test":                          "monitors",
-	"tests/data_source_datadog_permissions_test":                       "permissions",
-	"tests/data_source_datadog_role_test":                              "roles",
-	"tests/data_source_datadog_roles_test":                             "roles",
-	"tests/data_source_datadog_user_test":                              "users",
-	"tests/data_source_datadog_security_monitoring_rules_test":         "security-monitoring",
-	"tests/data_source_datadog_security_monitoring_filters_test":       "security-monitoring",
-	"tests/data_source_datadog_service_level_objective_test":           "service-level-objectives",
-	"tests/data_source_datadog_service_level_objectives_test":          "service-level-objectives",
-	"tests/data_source_datadog_synthetics_locations_test":              "synthetics",
-	"tests/data_source_datadog_synthetics_global_variable_test":        "synthetics",
-	"tests/import_datadog_downtime_test":                               "downtimes",
-	"tests/import_datadog_integration_pagerduty_test":                  "integration-pagerduty",
-	"tests/import_datadog_logs_pipeline_test":                          "logs-pipelines",
-	"tests/import_datadog_monitor_test":                                "monitors",
-	"tests/import_datadog_user_test":                                   "users",
-	"tests/provider_test":                                              "terraform",
-	"tests/resource_datadog_api_key_test":                              "api_keys",
-	"tests/resource_datadog_application_key_test":                      "application_keys",
-	"tests/resource_datadog_child_organization_test":                   "organization",
-	"tests/resource_datadog_dashboard_alert_graph_test":                "dashboards",
-	"tests/resource_datadog_dashboard_alert_value_test":                "dashboards",
-	"tests/resource_datadog_dashboard_change_test":                     "dashboards",
-	"tests/resource_datadog_dashboard_check_status_test":               "dashboards",
-	"tests/resource_datadog_dashboard_distribution_test":               "dashboards",
-	"tests/resource_datadog_dashboard_event_stream_test":               "dashboards",
-	"tests/resource_datadog_dashboard_event_timeline_test":             "dashboards",
-	"tests/resource_datadog_dashboard_free_text_test":                  "dashboards",
-	"tests/resource_datadog_dashboard_heatmap_test":                    "dashboards",
-	"tests/resource_datadog_dashboard_hostmap_test":                    "dashboards",
-	"tests/resource_datadog_dashboard_iframe_test":                     "dashboards",
-	"tests/resource_datadog_dashboard_image_test":                      "dashboards",
-	"tests/resource_datadog_dashboard_list_test":                       "dashboard-lists",
-	"tests/resource_datadog_dashboard_log_stream_test":                 "dashboards",
-	"tests/resource_datadog_dashboard_manage_status_test":              "dashboards",
-	"tests/resource_datadog_dashboard_note_test":                       "dashboards",
-	"tests/resource_datadog_dashboard_query_table_test":                "dashboards",
-	"tests/resource_datadog_dashboard_query_value_test":                "dashboards",
-	"tests/resource_datadog_dashboard_scatterplot_test":                "dashboards",
-	"tests/resource_datadog_dashboard_service_map_test":                "dashboards",
-	"tests/resource_datadog_dashboard_slo_test":                        "dashboards",
-	"tests/resource_datadog_dashboard_test":                            "dashboards",
-	"tests/resource_datadog_dashboard_timeseries_test":                 "dashboards",
-	"tests/resource_datadog_dashboard_top_list_test":                   "dashboards",
-	"tests/resource_datadog_dashboard_trace_service_test":              "dashboards",
-	"tests/resource_datadog_dashboard_json_test":                       "dashboards-json",
-	"tests/resource_datadog_downtime_test":                             "downtimes",
-	"tests/resource_datadog_dashboard_geomap_test":                     "dashboards",
-	"tests/resource_datadog_integration_aws_lambda_arn_test":           "integration-aws",
-	"tests/resource_datadog_integration_aws_log_collection_test":       "integration-aws",
-	"tests/resource_datadog_integration_aws_tag_filter_test":           "integration-aws",
-	"tests/resource_datadog_integration_aws_test":                      "integration-aws",
-	"tests/resource_datadog_integration_azure_test":                    "integration-azure",
-	"tests/resource_datadog_integration_gcp_test":                      "integration-gcp",
-	"tests/resource_datadog_integration_pagerduty_service_object_test": "integration-pagerduty",
-	"tests/resource_datadog_integration_pagerduty_test":                "integration-pagerduty",
-	"tests/resource_datadog_integration_slack_channel_test":            "integration-slack-channel",
-	"tests/resource_datadog_logs_archive_test":                         "logs-archive",
-	"tests/resource_datadog_logs_archive_order_test":                   "logs-archive-order",
-	"tests/resource_datadog_logs_index_test":                           "logs-index",
-	"tests/resource_datadog_logs_custom_pipeline_test":                 "logs-pipelines",
-	"tests/resource_datadog_logs_metric_test":                          "logs-metric",
-	"tests/resource_datadog_metric_metadata_test":                      "metrics",
-	"tests/resource_datadog_metric_tag_configuration_test":             "metrics",
-	"tests/resource_datadog_monitor_test":                              "monitors",
-	"tests/resource_datadog_monitor_json_test":                         "monitors-json",
-	"tests/resource_datadog_organization_settings_test":                "organization",
-	"tests/resource_datadog_role_test":                                 "roles",
-	"tests/resource_datadog_screenboard_test":                          "dashboards",
-	"tests/resource_datadog_security_monitoring_default_rule_test":     "security-monitoring",
-	"tests/resource_datadog_security_monitoring_rule_test":             "security-monitoring",
-	"tests/resource_datadog_security_monitoring_filter_test":           "security-monitoring",
-	"tests/resource_datadog_service_level_objective_test":              "service-level-objectives",
-	"tests/resource_datadog_slo_correction_test":                       "slo_correction",
-	"tests/resource_datadog_synthetics_test_test":                      "synthetics",
-	"tests/resource_datadog_synthetics_global_variable_test":           "synthetics",
-	"tests/resource_datadog_synthetics_private_location_test":          "synthetics",
-	"tests/resource_datadog_timeboard_test":                            "dashboards",
-	"tests/resource_datadog_user_test":                                 "users",
-	"tests/resource_datadog_webhook_custom_variable_test":              "webhook_custom_variable",
-	"tests/resource_datadog_webhook_test":                              "webhook",
+	"tests/data_source_datadog_api_key_test":                                 "api_keys",
+	"tests/data_source_datadog_apm_retention_filters_order_test":             "apm_retention_filters_order",
+	"tests/data_source_datadog_application_key_test":                         "application_keys",
+	"tests/data_source_datadog_cloud_workload_security_agent_rules_test":     "cloud-workload-security",
+	"tests/data_source_datadog_csm_threats_agent_rules_test":                 "cloud-workload-security",
+	"tests/data_source_datadog_dashboard_list_test":                          "dashboard-lists",
+	"tests/data_source_datadog_dashboard_test":                               "dashboard",
+	"tests/data_source_datadog_hosts_test":                                   "hosts",
+	"tests/data_source_datadog_integration_aws_logs_services_test":           "integration-aws",
+	"tests/data_source_datadog_integration_aws_available_logs_services_test": "integration-aws",
+	"tests/data_source_datadog_integration_aws_available_namespaces_test":    "integration-aws",
+	"tests/data_source_datadog_integration_aws_namespace_rules_test":         "integration-aws",
+	"tests/data_source_datadog_ip_ranges_test":                               "ip-ranges",
+	"tests/data_source_datadog_logs_archives_order_test":                     "logs-archive",
+	"tests/data_source_datadog_logs_indexes_order_test":                      "logs-index",
+	"tests/data_source_datadog_logs_indexes_test":                            "logs-index",
+	"tests/data_source_datadog_logs_pipelines_order_test":                    "logs-pipelines",
+	"tests/data_source_datadog_logs_pipelines_test":                          "logs-pipelines",
+	"tests/data_source_datadog_monitor_config_policies_test":                 "monitor-config-policies",
+	"tests/data_source_datadog_monitor_config_policy_test":                   "monitor-config-policies",
+	"tests/data_source_datadog_monitor_test":                                 "monitors",
+	"tests/data_source_datadog_monitors_test":                                "monitors",
+	"tests/data_source_datadog_permissions_test":                             "permissions",
+	"tests/data_source_datadog_powerpack_test":                               "powerpacks",
+	"tests/data_source_datadog_restriction_policy_test":                      "restriction-policy",
+	"tests/data_source_datadog_role_test":                                    "roles",
+	"tests/data_source_datadog_role_users_test":                              "roles",
+	"tests/data_source_datadog_roles_test":                                   "roles",
+	"tests/data_source_datadog_rum_application_test":                         "rum-application",
+	"tests/data_source_datadog_security_monitoring_filters_test":             "security-monitoring",
+	"tests/data_source_datadog_security_monitoring_rules_test":               "security-monitoring",
+	"tests/data_source_datadog_security_monitoring_suppressions_test":        "security-monitoring",
+	"tests/data_source_datadog_sensitive_data_scanner_group_order_test":      "sensitive-data-scanner",
+	"tests/data_source_datadog_sensitive_data_scanner_standard_pattern_test": "sensitive-data-scanner",
+	"tests/data_source_datadog_service_account_test":                         "users",
+	"tests/data_source_datadog_service_level_objective_test":                 "service-level-objectives",
+	"tests/data_source_datadog_service_level_objectives_test":                "service-level-objectives",
+	"tests/data_source_datadog_synthetics_global_variable_test":              "synthetics",
+	"tests/data_source_datadog_synthetics_locations_test":                    "synthetics",
+	"tests/data_source_datadog_synthetics_test_test":                         "synthetics",
+	"tests/data_source_datadog_team_memberships_test":                        "team",
+	"tests/data_source_datadog_team_test":                                    "team",
+	"tests/data_source_datadog_user_test":                                    "users",
+	"tests/data_source_datadog_users_test":                                   "users",
+	"tests/import_datadog_downtime_test":                                     "downtimes",
+	"tests/import_datadog_integration_pagerduty_test":                        "integration-pagerduty",
+	"tests/import_datadog_logs_pipeline_test":                                "logs-pipelines",
+	"tests/import_datadog_monitor_test":                                      "monitors",
+	"tests/import_datadog_user_test":                                         "users",
+	"tests/provider_test":                                                    "terraform",
+	"tests/resource_datadog_api_key_test":                                    "api_keys",
+	"tests/resource_datadog_apm_retention_filter_test":                       "apm_retention_filter",
+	"tests/resource_datadog_apm_retention_filter_order_test":                 "apm_retention_filter_order",
+	"tests/resource_datadog_application_key_test":                            "application_keys",
+	"tests/resource_datadog_authn_mapping_test":                              "authn_mapping",
+	"tests/resource_datadog_child_organization_test":                         "organization",
+	"tests/resource_datadog_cloud_configuration_rule_test":                   "security-monitoring",
+	"tests/resource_datadog_cloud_workload_security_agent_rule_test":         "cloud_workload_security",
+	"tests/resource_datadog_csm_threats_agent_rule_test":                     "cloud-workload-security",
+	"tests/resource_datadog_dashboard_alert_graph_test":                      "dashboards",
+	"tests/resource_datadog_dashboard_alert_value_test":                      "dashboards",
+	"tests/resource_datadog_dashboard_change_test":                           "dashboards",
+	"tests/resource_datadog_dashboard_check_status_test":                     "dashboards",
+	"tests/resource_datadog_dashboard_cross_org_test":                        "dashboards",
+	"tests/resource_datadog_dashboard_distribution_test":                     "dashboards",
+	"tests/resource_datadog_dashboard_event_stream_test":                     "dashboards",
+	"tests/resource_datadog_dashboard_event_timeline_test":                   "dashboards",
+	"tests/resource_datadog_dashboard_free_text_test":                        "dashboards",
+	"tests/resource_datadog_dashboard_geomap_test":                           "dashboards",
+	"tests/resource_datadog_dashboard_heatmap_test":                          "dashboards",
+	"tests/resource_datadog_dashboard_hostmap_test":                          "dashboards",
+	"tests/resource_datadog_dashboard_iframe_test":                           "dashboards",
+	"tests/resource_datadog_dashboard_image_test":                            "dashboards",
+	"tests/resource_datadog_dashboard_json_test":                             "dashboards-json",
+	"tests/resource_datadog_dashboard_list_stream_storage_test":              "dashboards",
+	"tests/resource_datadog_dashboard_list_stream_test":                      "dashboards",
+	"tests/resource_datadog_dashboard_list_test":                             "dashboard-lists",
+	"tests/resource_datadog_dashboard_log_stream_test":                       "dashboards",
+	"tests/resource_datadog_dashboard_manage_status_test":                    "dashboards",
+	"tests/resource_datadog_dashboard_note_test":                             "dashboards",
+	"tests/resource_datadog_dashboard_powerpack_test":                        "dashboards",
+	"tests/resource_datadog_dashboard_query_table_test":                      "dashboards",
+	"tests/resource_datadog_dashboard_query_value_test":                      "dashboards",
+	"tests/resource_datadog_dashboard_run_workflow_test":                     "dashboards",
+	"tests/resource_datadog_dashboard_scatterplot_test":                      "dashboards",
+	"tests/resource_datadog_dashboard_service_map_test":                      "dashboards",
+	"tests/resource_datadog_dashboard_slo_list_test":                         "dashboards",
+	"tests/resource_datadog_dashboard_slo_test":                              "dashboards",
+	"tests/resource_datadog_dashboard_style_test":                            "dashboards",
+	"tests/resource_datadog_dashboard_split_graph_test":                      "dashboards",
+	"tests/resource_datadog_dashboard_sunburst_test":                         "dashboards",
+	"tests/resource_datadog_dashboard_test":                                  "dashboards",
+	"tests/resource_datadog_dashboard_timeseries_test":                       "dashboards",
+	"tests/resource_datadog_dashboard_top_list_test":                         "dashboards",
+	"tests/resource_datadog_dashboard_topology_map_test":                     "dashboards",
+	"tests/resource_datadog_dashboard_trace_service_test":                    "dashboards",
+	"tests/resource_datadog_dashboard_treemap_test":                          "dashboards",
+	"tests/resource_datadog_domain_allowlist_test":                           "domain-allowlist",
+	"tests/resource_datadog_openapi_api_test":                                "apimanagement",
+	"tests/resource_datadog_powerpack_test":                                  "powerpacks",
+	"tests/resource_datadog_powerpack_alert_graph_test":                      "powerpacks",
+	"tests/resource_datadog_powerpack_alert_value_test":                      "powerpacks",
+	"tests/resource_datadog_powerpack_change_test":                           "powerpacks",
+	"tests/resource_datadog_powerpack_check_status_test":                     "powerpacks",
+	"tests/resource_datadog_powerpack_distribution_test":                     "powerpacks",
+	"tests/resource_datadog_powerpack_event_stream_test":                     "powerpacks",
+	"tests/resource_datadog_powerpack_event_timeline_test":                   "powerpacks",
+	"tests/resource_datadog_powerpack_geomap_test":                           "powerpacks",
+	"tests/resource_datadog_powerpack_iframe_test":                           "powerpacks",
+	"tests/resource_datadog_powerpack_image_test":                            "powerpacks",
+	"tests/resource_datadog_powerpack_free_text_test":                        "powerpacks",
+	"tests/resource_datadog_powerpack_heatmap_test":                          "powerpacks",
+	"tests/resource_datadog_powerpack_hostmap_test":                          "powerpacks",
+	"tests/resource_datadog_powerpack_list_stream_test":                      "powerpacks",
+	"tests/resource_datadog_powerpack_log_stream_test":                       "powerpacks",
+	"tests/resource_datadog_powerpack_manage_status_test":                    "powerpacks",
+	"tests/resource_datadog_powerpack_note_test":                             "powerpacks",
+	"tests/resource_datadog_powerpack_query_table_test":                      "powerpacks",
+	"tests/resource_datadog_powerpack_query_value_test":                      "powerpacks",
+	"tests/resource_datadog_powerpack_run_workflow_test":                     "powerpacks",
+	"tests/resource_datadog_powerpack_scatterplot_test":                      "powerpacks",
+	"tests/resource_datadog_powerpack_servicemap_test":                       "powerpacks",
+	"tests/resource_datadog_powerpack_slo_test":                              "powerpacks",
+	"tests/resource_datadog_powerpack_slo_list_test":                         "powerpacks",
+	"tests/resource_datadog_powerpack_sunburst_test":                         "powerpacks",
+	"tests/resource_datadog_powerpack_timeseries_test":                       "powerpacks",
+	"tests/resource_datadog_powerpack_toplist_test":                          "powerpacks",
+	"tests/resource_datadog_powerpack_topology_map_test":                     "powerpacks",
+	"tests/resource_datadog_powerpack_trace_service_test":                    "powerpacks",
+	"tests/resource_datadog_powerpack_treemap_test":                          "powerpacks",
+	"tests/resource_datadog_downtime_test":                                   "downtimes",
+	"tests/resource_datadog_downtime_schedule_test":                          "downtimes",
+	"tests/resource_datadog_integration_aws_lambda_arn_test":                 "integration-aws",
+	"tests/resource_datadog_integration_aws_log_collection_test":             "integration-aws",
+	"tests/resource_datadog_integration_aws_tag_filter_test":                 "integration-aws",
+	"tests/resource_datadog_integration_aws_test":                            "integration-aws",
+	"tests/resource_datadog_integration_aws_account_test":                    "integration-aws",
+	"tests/resource_datadog_integration_aws_event_bridge_test":               "integration-aws",
+	"tests/resource_datadog_integration_azure_test":                          "integration-azure",
+	"tests/resource_datadog_integration_cloudflare_account_test":             "integration-cloudflare",
+	"tests/resource_datadog_integration_confluent_account_test":              "integration-confluend-account",
+	"tests/resource_datadog_integration_confluent_resource_test":             "integration-confluend-resource",
+	"tests/resource_datadog_integration_fastly_account_test":                 "integration-fastly-account",
+	"tests/resource_datadog_integration_gcp_sts_test":                        "integration-gcp",
+	"tests/resource_datadog_integration_gcp_test":                            "integration-gcp",
+	"tests/resource_datadog_integration_microsoft_teams_handle_test":         "integration-microsoft-teams",
+	"tests/resource_datadog_integration_opsgenie_service_object_test":        "integration-opsgenie-service",
+	"tests/resource_datadog_integration_pagerduty_service_object_test":       "integration-pagerduty",
+	"tests/resource_datadog_integration_pagerduty_test":                      "integration-pagerduty",
+	"tests/resource_datadog_integration_slack_channel_test":                  "integration-slack-channel",
+	"tests/resource_datadog_ip_allowlist_test":                               "ip_allowlist",
+	"tests/resource_datadog_logs_archive_order_test":                         "logs-archive-order",
+	"tests/resource_datadog_logs_archive_test":                               "logs-archive",
+	"tests/resource_datadog_logs_custom_destination_test":                    "logs-custom-destination",
+	"tests/resource_datadog_logs_custom_pipeline_test":                       "logs-pipelines",
+	"tests/resource_datadog_logs_index_test":                                 "logs-index",
+	"tests/resource_datadog_logs_metric_test":                                "logs-metric",
+	"tests/resource_datadog_metric_metadata_test":                            "metrics",
+	"tests/resource_datadog_metric_tag_configuration_test":                   "metrics",
+	"tests/resource_datadog_monitor_config_policy_test":                      "monitor-config-policies",
+	"tests/resource_datadog_monitor_json_test":                               "monitors-json",
+	"tests/resource_datadog_monitor_test":                                    "monitors",
+	"tests/resource_datadog_organization_settings_test":                      "organization",
+	"tests/resource_datadog_restriction_policy_test":                         "restriction-policy",
+	"tests/resource_datadog_role_test":                                       "roles",
+	"tests/resource_datadog_rum_application_test":                            "rum-application",
+	"tests/resource_datadog_rum_metric_test":                                 "rum-metric",
+	"tests/resource_datadog_screenboard_test":                                "dashboards",
+	"tests/resource_datadog_security_monitoring_default_rule_test":           "security-monitoring",
+	"tests/resource_datadog_security_monitoring_filter_test":                 "security-monitoring",
+	"tests/resource_datadog_security_monitoring_rule_test":                   "security-monitoring",
+	"tests/resource_datadog_security_monitoring_suppression_test":            "security-monitoring",
+	"tests/resource_datadog_sensitive_data_scanner_group_order_test":         "sensitive-data-scanner",
+	"tests/resource_datadog_sensitive_data_scanner_group_test":               "sensitive-data-scanner",
+	"tests/resource_datadog_sensitive_data_scanner_rule_test":                "sensitive-data-scanner",
+	"tests/resource_datadog_service_account_application_key_test":            "users",
+	"tests/resource_datadog_service_account_test":                            "users",
+	"tests/resource_datadog_service_definition_yaml_test":                    "service-definition",
+	"tests/resource_datadog_service_level_objective_test":                    "service-level-objectives",
+	"tests/resource_datadog_slo_correction_test":                             "slo_correction",
+	"tests/resource_datadog_software_catalog_test":                           "software-catalog",
+	"tests/resource_datadog_spans_metric_test":                               "spans-metric",
+	"tests/resource_datadog_synthetics_concurrency_cap_test":                 "synthetics",
+	"tests/resource_datadog_synthetics_global_variable_test":                 "synthetics",
+	"tests/resource_datadog_synthetics_private_location_test":                "synthetics",
+	"tests/resource_datadog_synthetics_test_test":                            "synthetics",
+	"tests/resource_datadog_team_link_test":                                  "team",
+	"tests/resource_datadog_team_membership_test":                            "team",
+	"tests/resource_datadog_team_permission_setting_test":                    "team",
+	"tests/resource_datadog_team_test":                                       "team",
+	"tests/resource_datadog_timeboard_test":                                  "dashboards",
+	"tests/resource_datadog_user_test":                                       "users",
+	"tests/resource_datadog_user_role_test":                                  "roles",
+	"tests/resource_datadog_webhook_custom_variable_test":                    "webhook_custom_variable",
+	"tests/resource_datadog_webhook_test":                                    "webhook",
 }
 
 // getEndpointTagValue traverses callstack frames to find the test function that invoked this call;
@@ -205,13 +315,20 @@ func isTestOrg() bool {
 	if isTestOrgC != nil {
 		return *isTestOrgC
 	}
+
+	var apiURL string
+	if apiURL = os.Getenv(testAPIUrlEnvName); apiURL == "" {
+		apiURL = "https://api.datadoghq.com"
+	}
+
 	// If keys belong to test org, then this get will succeed, otherwise it will fail with 400
 	publicID := ddTestOrg
 	if v := os.Getenv(testOrgEnvName); v != "" {
 		publicID = v
 	}
+
 	client := &http.Client{}
-	req, _ := http.NewRequest("GET", "https://api.datadoghq.com/api/v1/org/"+publicID, nil)
+	req, _ := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s", strings.TrimRight(apiURL, "/"), "api/v1/org", publicID), nil)
 	req.Header.Add("DD-API-KEY", os.Getenv(testAPIKeyEnvName))
 	req.Header.Add("DD-APPLICATION-KEY", os.Getenv(testAPPKeyEnvName))
 	resp, err := client.Do(req)
@@ -243,7 +360,7 @@ func setClock(t *testing.T) clockwork.FakeClock {
 }
 
 func restoreClock(t *testing.T) clockwork.FakeClock {
-	data, err := ioutil.ReadFile(fmt.Sprintf("cassettes/%s.freeze", t.Name()))
+	data, err := os.ReadFile(fmt.Sprintf("cassettes/%s.freeze", t.Name()))
 	if err != nil {
 		t.Logf("Could not load clock: %v", err)
 		return setClock(t)
@@ -316,13 +433,27 @@ func uniqueAWSAccountID(ctx context.Context, t *testing.T) string {
 	return result[:12]
 }
 
+// uniqueAgentRuleName takes the current/frozen time and uses it to generate a unique agent
+// rule name that changes in CI, but is stable locally.
+func uniqueAgentRuleName(ctx context.Context) string {
+	var seededRand *rand.Rand = rand.New(rand.NewSource(clockFromContext(ctx).Now().Unix()))
+	charset := "abcdefghijklmnopqrstuvwxyz"
+	nameLength := 10
+	var buf bytes.Buffer
+	buf.Grow(nameLength)
+	for i := 0; i < nameLength; i++ {
+		buf.WriteString(string(charset[seededRand.Intn(len(charset))]))
+	}
+	return buf.String()
+}
+
 // uniqueAWSAccessKeyID takes uniqueEntityName result, hashes it to get a unique string
 // and then returns first 16 characters (numerical only), so that the value can be used
 // as AWS account ID and is still as unique as possible, it changes in CI, but is stable locally
 func uniqueAWSAccessKeyID(ctx context.Context, t *testing.T) string {
 	uniq := uniqueEntityName(ctx, t)
 	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(uniq)))
-	result := ""
+	result := "AKIA"
 	for _, r := range hash {
 		result = fmt.Sprintf("%s%s", result, strconv.Itoa(int(r)))
 	}
@@ -340,31 +471,57 @@ func removeURLSecrets(u *url.URL) *url.URL {
 func initRecorder(t *testing.T) *recorder.Recorder {
 	var mode recorder.Mode
 	if isRecording() {
-		mode = recorder.ModeRecording
+		mode = recorder.ModeRecordOnly
 	} else if isReplaying() {
-		mode = recorder.ModeReplaying
+		mode = recorder.ModeReplayOnly
 	} else {
-		mode = recorder.ModeDisabled
+		mode = recorder.ModePassthrough
 	}
 
-	rec, err := recorder.NewAsMode(fmt.Sprintf("cassettes/%s", t.Name()), mode, nil)
+	opts := &recorder.Options{
+		CassetteName:       fmt.Sprintf("cassettes/%s", t.Name()),
+		Mode:               mode,
+		SkipRequestLatency: true,
+		RealTransport:      http.DefaultTransport,
+	}
+
+	rec, err := recorder.NewWithOptions(opts)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	rec.SetMatcher(matchInteraction)
 
-	rec.AddFilter(func(i *cassette.Interaction) error {
-		u, err := url.Parse(i.URL)
+	redactHook := func(i *cassette.Interaction) error {
+		u, err := url.Parse(i.Request.URL)
 		if err != nil {
 			return err
 		}
-		i.URL = removeURLSecrets(u).String()
-		i.Request.Headers.Del("Dd-Api-Key")
-		i.Request.Headers.Del("Dd-Application-Key")
+		i.Request.URL = removeURLSecrets(u).String()
+
+		filterHeaders(i)
 		return nil
-	})
+	}
+	rec.AddHook(redactHook, recorder.AfterCaptureHook)
+
 	return rec
+}
+
+// filterHeaders filter out headers
+func filterHeaders(i *cassette.Interaction) {
+	requestHeadersCopy := i.Request.Headers.Clone()
+	responseHeadersCopy := i.Response.Headers.Clone()
+
+	for k := range requestHeadersCopy {
+		if _, ok := allowedHeaders[k]; !ok {
+			i.Request.Headers.Del(k)
+		}
+	}
+	for k := range responseHeadersCopy {
+		if _, ok := allowedHeaders[k]; !ok {
+			i.Response.Headers.Del(k)
+		}
+	}
 }
 
 // matchInteraction checks if the request matches a store request in the given cassette.
@@ -387,7 +544,7 @@ func matchInteraction(r *http.Request, i cassette.Request) bool {
 		log.Printf("could not read request body: %v\n", err)
 		return false
 	}
-	r.Body = ioutil.NopCloser(&b)
+	r.Body = io.NopCloser(&b)
 
 	matched := b.String() == "" || b.String() == i.Body
 
@@ -444,24 +601,12 @@ func initAccProvider(ctx context.Context, t *testing.T, httpClient *http.Client)
 func buildContext(ctx context.Context, apiKey string, appKey string, apiURL string) (context.Context, error) {
 	ctx = context.WithValue(
 		ctx,
-		datadogV1.ContextAPIKeys,
-		map[string]datadogV1.APIKey{
-			"apiKeyAuth": datadogV1.APIKey{
+		common.ContextAPIKeys,
+		map[string]common.APIKey{
+			"apiKeyAuth": {
 				Key: apiKey,
 			},
-			"appKeyAuth": datadogV1.APIKey{
-				Key: appKey,
-			},
-		},
-	)
-	ctx = context.WithValue(
-		ctx,
-		datadogV2.ContextAPIKeys,
-		map[string]datadogV2.APIKey{
-			"apiKeyAuth": datadogV2.APIKey{
-				Key: apiKey,
-			},
-			"appKeyAuth": datadogV2.APIKey{
+			"appKeyAuth": {
 				Key: appKey,
 			},
 		},
@@ -476,49 +621,48 @@ func buildContext(ctx context.Context, apiKey string, appKey string, apiURL stri
 			return nil, fmt.Errorf(`missing protocol or host : %v`, apiURL)
 		}
 		// If api url is passed, set and use the api name and protocol on ServerIndex{1}
-		ctx = context.WithValue(ctx, datadogV1.ContextServerIndex, 1)
-		ctx = context.WithValue(ctx, datadogV2.ContextServerIndex, 1)
+		ctx = context.WithValue(ctx, common.ContextServerIndex, 1)
 
 		serverVariables := map[string]string{
 			"name":     parsedAPIURL.Host,
 			"protocol": parsedAPIURL.Scheme,
 		}
-		ctx = context.WithValue(ctx, datadogV1.ContextServerVariables, serverVariables)
-		ctx = context.WithValue(ctx, datadogV2.ContextServerVariables, serverVariables)
+		ctx = context.WithValue(ctx, common.ContextServerVariables, serverVariables)
 	}
 	return ctx, nil
 }
 
-func buildDatadogClientV1(httpClient *http.Client) *datadogV1.APIClient {
-	//Datadog V1 API config.HTTPClient
-	configV1 := datadogV1.NewConfiguration()
-	configV1.SetUnstableOperationEnabled("CreateSLOCorrection", true)
-	configV1.SetUnstableOperationEnabled("GetSLOCorrection", true)
-	configV1.SetUnstableOperationEnabled("UpdateSLOCorrection", true)
-	configV1.SetUnstableOperationEnabled("DeleteSLOCorrection", true)
-	configV1.Debug = isDebug()
-	configV1.HTTPClient = httpClient
-	configV1.UserAgent = utils.GetUserAgent(configV1.UserAgent)
-	return datadogV1.NewAPIClient(configV1)
-}
-
-func buildDatadogClientV2(httpClient *http.Client) *datadogV2.APIClient {
-	//Datadog V2 API config.HTTPClient
-	configV2 := datadogV2.NewConfiguration()
-	configV2.SetUnstableOperationEnabled("CreateTagConfiguration", true)
-	configV2.SetUnstableOperationEnabled("DeleteTagConfiguration", true)
-	configV2.SetUnstableOperationEnabled("ListTagConfigurationByName", true)
-	configV2.SetUnstableOperationEnabled("UpdateTagConfiguration", true)
-	configV2.Debug = isDebug()
-	configV2.HTTPClient = httpClient
-	configV2.UserAgent = utils.GetUserAgent(configV2.UserAgent)
-	return datadogV2.NewAPIClient(configV2)
+func buildDatadogClient(ctx context.Context, httpClient *http.Client) *common.APIClient {
+	// Datadog API config.HTTPClient
+	config := common.NewConfiguration()
+	if ctx.Value("http_retry_enable") == true {
+		config.RetryConfiguration.EnableRetry = true
+	}
+	config.Debug = isDebug()
+	config.HTTPClient = httpClient
+	config.UserAgent = utils.GetUserAgent(config.UserAgent)
+	return common.NewAPIClient(config)
 }
 
 func testProviderConfigure(ctx context.Context, httpClient *http.Client, clock clockwork.FakeClock) schema.ConfigureContextFunc {
 	return func(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-		communityClient := datadogCommunity.NewClient(d.Get("api_key").(string), d.Get("app_key").(string))
-		if apiURL := d.Get("api_url").(string); apiURL != "" {
+		apiKey := d.Get("api_key").(string)
+		if apiKey == "" {
+			apiKey, _ = utils.GetMultiEnvVar(utils.APIKeyEnvVars[:]...)
+		}
+
+		appKey := d.Get("app_key").(string)
+		if appKey == "" {
+			appKey, _ = utils.GetMultiEnvVar(utils.APPKeyEnvVars[:]...)
+		}
+
+		apiURL := d.Get("api_url").(string)
+		if apiURL == "" {
+			apiURL, _ = utils.GetMultiEnvVar(utils.APIUrlEnvVars[:]...)
+		}
+
+		communityClient := datadogCommunity.NewClient(apiKey, appKey)
+		if apiURL != "" {
 			communityClient.SetBaseUrl(apiURL)
 		}
 
@@ -533,17 +677,15 @@ func testProviderConfigure(ctx context.Context, httpClient *http.Client, clock c
 			runtime.GOARCH,
 		))
 
-		ctx, err := buildContext(ctx, d.Get("api_key").(string), d.Get("app_key").(string), d.Get("api_url").(string))
+		ctx, err := buildContext(ctx, apiKey, appKey, apiURL)
 		if err != nil {
 			return nil, diag.FromErr(err)
 		}
 
 		return &datadog.ProviderConfiguration{
-			CommunityClient: communityClient,
-			DatadogClientV1: buildDatadogClientV1(c),
-			DatadogClientV2: buildDatadogClientV2(c),
-			AuthV1:          ctx,
-			AuthV2:          ctx,
+			CommunityClient:     communityClient,
+			DatadogApiInstances: &utils.ApiInstances{HttpClient: buildDatadogClient(ctx, c)},
+			Auth:                ctx,
 
 			Now: clock.Now,
 		}, nil
@@ -564,8 +706,7 @@ func testAccProviders(ctx context.Context, t *testing.T) (context.Context, map[s
 	rec := initRecorder(t)
 	ctx = context.WithValue(ctx, clockContextKey("clock"), testClock(t))
 	c := cleanhttp.DefaultClient()
-	loggingTransport := logging.NewTransport("Datadog", rec)
-	c.Transport = transport.NewCustomTransport(loggingTransport, transport.CustomTransportOptions{})
+	c.Transport = rec
 	p := testAccProvidersWithHTTPClient(ctx, t, c)
 	t.Cleanup(func() {
 		rec.Stop()
@@ -582,12 +723,28 @@ func testAccProvider(t *testing.T, accProviders map[string]func() (*schema.Provi
 	return accProvider
 }
 
+func withDefaultTags(providerFactory func() (*schema.Provider, error), defaultTags map[string]interface{}) func() (*schema.Provider, error) {
+	provider, err := providerFactory()
+	newProvider := *provider
+	return func() (*schema.Provider, error) {
+		configureFunc := func(lctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+			config, diags := provider.ConfigureContextFunc(lctx, d)
+			if config != nil {
+				config.(*datadog.ProviderConfiguration).DefaultTags = defaultTags
+			}
+			return config, diags
+		}
+		newProvider.ConfigureContextFunc = configureFunc
+		return &newProvider, err
+	}
+}
+
 func TestProvider(t *testing.T) {
 	rec := initRecorder(t)
 	defer rec.Stop()
 
 	c := cleanhttp.DefaultClient()
-	c.Transport = logging.NewTransport("Datadog", rec)
+	c.Transport = rec
 	accProvider := initAccProvider(context.Background(), t, c)
 
 	if err := accProvider.InternalValidate(); err != nil {
@@ -596,12 +753,17 @@ func TestProvider(t *testing.T) {
 }
 
 func TestProvider_impl(t *testing.T) {
-	var _ = datadog.Provider()
+	_ = datadog.Provider()
 }
 
 func testAccPreCheck(t *testing.T) {
 	// Unset all regular env to avoid mistakenly running tests against wrong org
-	for _, v := range append(datadog.APPKeyEnvVars, datadog.APIKeyEnvVars...) {
+	var envVars []string
+	envVars = append(envVars, utils.APPKeyEnvVars...)
+	envVars = append(envVars, utils.APIKeyEnvVars...)
+	envVars = append(envVars, utils.APIUrlEnvVars...)
+
+	for _, v := range envVars {
 		_ = os.Unsetenv(v)
 	}
 
@@ -626,12 +788,15 @@ func testAccPreCheck(t *testing.T) {
 		)
 	}
 
-	if err := os.Setenv(datadog.DDAPIKeyEnvName, os.Getenv(testAPIKeyEnvName)); err != nil {
+	if err := os.Setenv(utils.DDAPIKeyEnvName, os.Getenv(testAPIKeyEnvName)); err != nil {
 		t.Fatalf("Error setting API key: %v", err)
 	}
 
-	if err := os.Setenv(datadog.DDAPPKeyEnvName, os.Getenv(testAPPKeyEnvName)); err != nil {
+	if err := os.Setenv(utils.DDAPPKeyEnvName, os.Getenv(testAPPKeyEnvName)); err != nil {
 		t.Fatalf("Error setting API key: %v", err)
+	}
+	if err := os.Setenv(utils.DDAPIUrlEnvName, os.Getenv(testAPIUrlEnvName)); err != nil {
+		t.Fatalf("Error setting API url: %v", err)
 	}
 }
 
@@ -657,13 +822,14 @@ func testCheckResourceAttrs(name string, checkExists resource.TestCheckFunc, ass
 		} else {
 			funcs = append(funcs, resource.TestCheckResourceAttr(name, key, value))
 			// Use utility method below, instead of the above one, to print out all state keys/values during test debugging
-			//funcs = append(funcs, CheckResourceAttr(name, key, value))
+			// funcs = append(funcs, CheckResourceAttr(name, key, value))
 		}
 	}
 	return funcs
 }
 
-/* Utility method for Debugging purpose. This method helps list assertions as well
+/*
+Utility method for Debugging purpose. This method helps list assertions as well
 It is a duplication of `resource.TestCheckResourceAttr` into which we added print statements.
 */
 func CheckResourceAttr(name, key, value string) resource.TestCheckFunc {

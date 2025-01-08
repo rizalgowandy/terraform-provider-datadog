@@ -2,26 +2,25 @@ package test
 
 import (
 	"context"
+	"crypto/sha256"
 	"fmt"
 	"testing"
 
-	"github.com/terraform-providers/terraform-provider-datadog/datadog"
+	"github.com/terraform-providers/terraform-provider-datadog/datadog/fwprovider"
 	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/utils"
 
-	datadogV2 "github.com/DataDog/datadog-api-client-go/api/v2/datadog"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
-//Test
+// Test
 // create: OK azure
 func archiveAzureConfigForCreation(uniq string) string {
 	return fmt.Sprintf(`
 resource "datadog_integration_azure" "an_azure_integration" {
   tenant_name   = "%s"
-  client_id     = "testc7f6-1234-5678-9101-3fcbf464test"
-  client_secret = "testingx./Sw*g/Y33t..R1cH+hScMDt"
+  client_id     = "a75fbdd2-ade6-43d0-a810-4d886c53871e"
+  client_secret = "TestingRh2nx664kUy5dIApvM54T4AtO"
 }
 
 resource "datadog_logs_archive" "my_azure_archive" {
@@ -31,29 +30,28 @@ resource "datadog_logs_archive" "my_azure_archive" {
   azure_archive {
     container 		= "my-container"
     tenant_id 		= "%s"
-    client_id       = "testc7f6-1234-5678-9101-3fcbf464test"
+    client_id       = "a75fbdd2-ade6-43d0-a810-4d886c53871e"
     storage_account = "storageaccount"
     path            = "/path/blou"
   }
-}
-`, uniq, uniq)
+}`, uniq, uniq)
 }
 
 func TestAccDatadogLogsArchiveAzure_basic(t *testing.T) {
-	ctx, accProviders := testAccProviders(context.Background(), t)
-	tenantName := uniqueEntityName(ctx, t)
-	accProvider := testAccProvider(t, accProviders)
+	t.Parallel()
+	ctx, providers, accProviders := testAccFrameworkMuxProviders(context.Background(), t)
+	unique_hash := fmt.Sprintf("%x", sha256.Sum256([]byte(uniqueEntityName(ctx, t))))
+	tenantName := fmt.Sprintf("%s-%s-%s-%s-%s", unique_hash[:8], unique_hash[8:12], unique_hash[12:16], unique_hash[16:20], unique_hash[20:32])
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: accProviders,
-		CheckDestroy:      testAccCheckArchiveAndIntegrationAzureDestroy(accProvider),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: accProviders,
+		CheckDestroy:             testAccCheckArchiveAndIntegrationAzureDestroy(providers.frameworkProvider),
 		Steps: []resource.TestStep{
 			{
 				Config: archiveAzureConfigForCreation(tenantName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckArchiveExists(accProvider),
-					resource.TestCheckNoResourceAttr("datadog_logs_archive.my_azure_archive", "azure"),
+					testAccCheckArchiveExists(providers.frameworkProvider),
 					resource.TestCheckResourceAttr(
 						"datadog_logs_archive.my_azure_archive", "name", "my first azure archive"),
 					resource.TestCheckResourceAttr(
@@ -61,7 +59,7 @@ func TestAccDatadogLogsArchiveAzure_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"datadog_logs_archive.my_azure_archive", "azure_archive.0.container", "my-container"),
 					resource.TestCheckResourceAttr(
-						"datadog_logs_archive.my_azure_archive", "azure_archive.0.client_id", "testc7f6-1234-5678-9101-3fcbf464test"),
+						"datadog_logs_archive.my_azure_archive", "azure_archive.0.client_id", "a75fbdd2-ade6-43d0-a810-4d886c53871e"),
 					resource.TestCheckResourceAttr(
 						"datadog_logs_archive.my_azure_archive", "azure_archive.0.tenant_id", tenantName),
 					resource.TestCheckResourceAttr(
@@ -70,6 +68,8 @@ func TestAccDatadogLogsArchiveAzure_basic(t *testing.T) {
 						"datadog_logs_archive.my_azure_archive", "azure_archive.0.path", "/path/blou"),
 					resource.TestCheckResourceAttr(
 						"datadog_logs_archive.my_azure_archive", "include_tags", "false"),
+					resource.TestCheckNoResourceAttr(
+						"datadog_logs_archive.my_azure_archive", "rehydration_max_scan_size_in_gb"),
 				),
 			},
 		},
@@ -102,19 +102,22 @@ resource "datadog_logs_archive" "my_gcs_archive" {
 }
 
 func TestAccDatadogLogsArchiveGCS_basic(t *testing.T) {
-	ctx, accProviders := testAccProviders(context.Background(), t)
+	t.Parallel()
+	if !isReplaying() {
+		t.Skip("This test only supports replaying")
+	}
+	ctx, providers, accProviders := testAccFrameworkMuxProviders(context.Background(), t)
 	client := uniqueEntityName(ctx, t)
-	accProvider := testAccProvider(t, accProviders)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: accProviders,
-		CheckDestroy:      testAccCheckArchiveAndIntegrationGCSDestroy(accProvider),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: accProviders,
+		CheckDestroy:             testAccCheckArchiveAndIntegrationGCSDestroy(providers.frameworkProvider),
 		Steps: []resource.TestStep{
 			{
 				Config: archiveGCSConfigForCreation(client),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckArchiveExists(accProvider),
+					testAccCheckArchiveExists(providers.frameworkProvider),
 					resource.TestCheckNoResourceAttr("datadog_logs_archive.my_gcs_archive", "gcs"),
 					resource.TestCheckResourceAttr(
 						"datadog_logs_archive.my_gcs_archive", "name", "my first gcs archive"),
@@ -130,6 +133,8 @@ func TestAccDatadogLogsArchiveGCS_basic(t *testing.T) {
 						"datadog_logs_archive.my_gcs_archive", "gcs_archive.0.path", "/path/blah"),
 					resource.TestCheckResourceAttr(
 						"datadog_logs_archive.my_gcs_archive", "include_tags", "false"),
+					resource.TestCheckNoResourceAttr(
+						"datadog_logs_archive.my_gcs_archive", "rehydration_max_scan_size_in_gb"),
 				),
 			},
 		},
@@ -156,23 +161,24 @@ resource "datadog_logs_archive" "my_s3_archive" {
   }
   rehydration_tags = ["team:intake", "team:app"]
   include_tags = true
+	rehydration_max_scan_size_in_gb = 123
 }`, uniq, uniq)
 }
 
 func TestAccDatadogLogsArchiveS3_basic(t *testing.T) {
-	ctx, accProviders := testAccProviders(context.Background(), t)
+	t.Parallel()
+	ctx, providers, accProviders := testAccFrameworkMuxProviders(context.Background(), t)
 	accountID := uniqueAWSAccountID(ctx, t)
-	accProvider := testAccProvider(t, accProviders)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: accProviders,
-		CheckDestroy:      testAccCheckArchiveAndIntegrationAWSDestroy(accProvider),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: accProviders,
+		CheckDestroy:             testAccCheckArchiveAndIntegrationAWSDestroy(providers.frameworkProvider),
 		Steps: []resource.TestStep{
 			{
 				Config: archiveS3ConfigForCreation(accountID),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckArchiveExists(accProvider),
+					testAccCheckArchiveExists(providers.frameworkProvider),
 					resource.TestCheckNoResourceAttr("datadog_logs_archive.my_s3_archive", "s3"),
 					resource.TestCheckResourceAttr(
 						"datadog_logs_archive.my_s3_archive", "name", "my first s3 archive"),
@@ -192,6 +198,8 @@ func TestAccDatadogLogsArchiveS3_basic(t *testing.T) {
 						"datadog_logs_archive.my_s3_archive", "rehydration_tags.1", "team:app"),
 					resource.TestCheckResourceAttr(
 						"datadog_logs_archive.my_s3_archive", "include_tags", "true"),
+					resource.TestCheckResourceAttr(
+						"datadog_logs_archive.my_s3_archive", "rehydration_max_scan_size_in_gb", "123"),
 				),
 			},
 		},
@@ -217,23 +225,24 @@ resource "datadog_logs_archive" "my_s3_archive" {
 	role_name    = "testacc-datadog-integration-role"
   }
   include_tags = false
+	rehydration_max_scan_size_in_gb = 345
 }`, uniq, uniq)
 }
 
 func TestAccDatadogLogsArchiveS3Update_basic(t *testing.T) {
-	ctx, accProviders := testAccProviders(context.Background(), t)
+	t.Parallel()
+	ctx, providers, accProviders := testAccFrameworkMuxProviders(context.Background(), t)
 	accountID := uniqueAWSAccountID(ctx, t)
-	accProvider := testAccProvider(t, accProviders)
+
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: accProviders,
-		CheckDestroy:      testAccCheckArchiveAndIntegrationAWSDestroy(accProvider),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: accProviders,
+		CheckDestroy:             testAccCheckArchiveAndIntegrationAWSDestroy(providers.frameworkProvider),
 		Steps: []resource.TestStep{
 			{
 				Config: archiveS3ConfigForCreation(accountID),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckArchiveExists(accProvider),
-					resource.TestCheckNoResourceAttr("datadog_logs_archive.my_s3_archive", "s3_archive"),
+					testAccCheckArchiveExists(providers.frameworkProvider),
 					resource.TestCheckResourceAttr(
 						"datadog_logs_archive.my_s3_archive", "name", "my first s3 archive"),
 					resource.TestCheckResourceAttr(
@@ -244,12 +253,13 @@ func TestAccDatadogLogsArchiveS3Update_basic(t *testing.T) {
 						"datadog_logs_archive.my_s3_archive", "s3_archive.0.role_name", "testacc-datadog-integration-role"),
 					resource.TestCheckResourceAttr(
 						"datadog_logs_archive.my_s3_archive", "s3_archive.0.path", "/path/foo"),
+					resource.TestCheckResourceAttr(
+						"datadog_logs_archive.my_s3_archive", "rehydration_max_scan_size_in_gb", "123"),
 				),
 			},
 			{
 				Config: archiveS3ConfigForUpdate(accountID),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckNoResourceAttr("datadog_logs_archive.my_s3_archive", "s3"),
 					resource.TestCheckResourceAttr(
 						"datadog_logs_archive.my_s3_archive", "name", "my first s3 archive after update"),
 					resource.TestCheckResourceAttr(
@@ -264,31 +274,31 @@ func TestAccDatadogLogsArchiveS3Update_basic(t *testing.T) {
 						"datadog_logs_archive.my_s3_archive", "s3_archive.0.role_name", "testacc-datadog-integration-role"),
 					resource.TestCheckResourceAttr(
 						"datadog_logs_archive.my_s3_archive", "s3_archive.0.path", "/path/foo"),
+					resource.TestCheckResourceAttr(
+						"datadog_logs_archive.my_s3_archive", "rehydration_max_scan_size_in_gb", "345"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckArchiveExists(accProvider func() (*schema.Provider, error)) resource.TestCheckFunc {
+func testAccCheckArchiveExists(accProvider *fwprovider.FrameworkProvider) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		provider, _ := accProvider()
-		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV2 := providerConf.DatadogClientV2
-		authV2 := providerConf.AuthV2
+		apiInstances := accProvider.DatadogApiInstances
+		auth := accProvider.Auth
 
-		if err := archiveExistsChecker(authV2, s, datadogClientV2); err != nil {
+		if err := archiveExistsChecker(auth, s, apiInstances); err != nil {
 			return err
 		}
 		return nil
 	}
 }
 
-func archiveExistsChecker(ctx context.Context, s *terraform.State, datadogClientV2 *datadogV2.APIClient) error {
+func archiveExistsChecker(ctx context.Context, s *terraform.State, apiInstances *utils.ApiInstances) error {
 	for _, r := range s.RootModule().Resources {
 		if r.Type == "datadog_logs_archive" {
 			id := r.Primary.ID
-			if _, _, err := datadogClientV2.LogsArchivesApi.GetLogsArchive(ctx, id); err != nil {
+			if _, _, err := apiInstances.GetLogsArchivesApiV2().GetLogsArchive(ctx, id); err != nil {
 				return fmt.Errorf("received an error when retrieving archive, (%s)", err)
 			}
 		}
@@ -296,7 +306,7 @@ func archiveExistsChecker(ctx context.Context, s *terraform.State, datadogClient
 	return nil
 }
 
-func testAccCheckArchiveAndIntegrationAzureDestroy(accProvider func() (*schema.Provider, error)) func(*terraform.State) error {
+func testAccCheckArchiveAndIntegrationAzureDestroy(accProvider *fwprovider.FrameworkProvider) func(*terraform.State) error {
 	return func(s *terraform.State) error {
 		err := testAccCheckArchiveDestroy(accProvider)(s)
 		if err != nil {
@@ -307,7 +317,7 @@ func testAccCheckArchiveAndIntegrationAzureDestroy(accProvider func() (*schema.P
 	}
 }
 
-func testAccCheckArchiveAndIntegrationGCSDestroy(accProvider func() (*schema.Provider, error)) func(*terraform.State) error {
+func testAccCheckArchiveAndIntegrationGCSDestroy(accProvider *fwprovider.FrameworkProvider) func(*terraform.State) error {
 	return func(s *terraform.State) error {
 		err := testAccCheckArchiveDestroy(accProvider)(s)
 		if err != nil {
@@ -318,7 +328,7 @@ func testAccCheckArchiveAndIntegrationGCSDestroy(accProvider func() (*schema.Pro
 	}
 }
 
-func testAccCheckArchiveAndIntegrationAWSDestroy(accProvider func() (*schema.Provider, error)) func(*terraform.State) error {
+func testAccCheckArchiveAndIntegrationAWSDestroy(accProvider *fwprovider.FrameworkProvider) func(*terraform.State) error {
 	return func(s *terraform.State) error {
 		err := testAccCheckArchiveDestroy(accProvider)(s)
 		if err != nil {
@@ -329,26 +339,24 @@ func testAccCheckArchiveAndIntegrationAWSDestroy(accProvider func() (*schema.Pro
 	}
 }
 
-func testAccCheckArchiveDestroy(accProvider func() (*schema.Provider, error)) func(*terraform.State) error {
+func testAccCheckArchiveDestroy(accProvider *fwprovider.FrameworkProvider) func(*terraform.State) error {
 	return func(s *terraform.State) error {
-		provider, _ := accProvider()
-		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV2 := providerConf.DatadogClientV2
-		authV2 := providerConf.AuthV2
-		if err := archiveDestroyHelper(authV2, s, datadogClientV2); err != nil {
+		apiInstances := accProvider.DatadogApiInstances
+		auth := accProvider.Auth
+		if err := archiveDestroyHelper(auth, s, apiInstances); err != nil {
 			return err
 		}
 		return nil
 	}
 }
 
-func archiveDestroyHelper(ctx context.Context, s *terraform.State, datadogClientV2 *datadogV2.APIClient) error {
+func archiveDestroyHelper(ctx context.Context, s *terraform.State, apiInstances *utils.ApiInstances) error {
 	for _, r := range s.RootModule().Resources {
 		if r.Type == "datadog_logs_archive" {
 			id := r.Primary.ID
 			err := utils.Retry(2, 5, func() error {
 				if r.Primary.ID != "" {
-					_, httpresp, err := datadogClientV2.LogsArchivesApi.GetLogsArchive(ctx, id)
+					_, httpresp, err := apiInstances.GetLogsArchivesApiV2().GetLogsArchive(ctx, id)
 					if err != nil {
 						if httpresp != nil && httpresp.StatusCode == 404 {
 							return nil

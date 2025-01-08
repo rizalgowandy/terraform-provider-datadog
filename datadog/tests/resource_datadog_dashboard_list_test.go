@@ -7,12 +7,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/terraform-providers/terraform-provider-datadog/datadog"
-
-	datadogV1 "github.com/DataDog/datadog-api-client-go/api/v1/datadog"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
+	"github.com/terraform-providers/terraform-provider-datadog/datadog"
+	"github.com/terraform-providers/terraform-provider-datadog/datadog/fwprovider"
+	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/utils"
 )
 
 func testAccCheckDatadogDashListConfig(uniq string) string {
@@ -124,17 +125,15 @@ resource "datadog_dashboard" "time" {
 func TestDatadogDashListImport(t *testing.T) {
 	t.Parallel()
 	resourceName := "datadog_dashboard_list.new_list"
-	ctx, accProviders := testAccProviders(context.Background(), t)
+	ctx, providers, accProviders := testAccFrameworkMuxProviders(context.Background(), t)
 	uniqueName := uniqueEntityName(ctx, t)
-	accProvider := testAccProvider(t, accProviders)
 
 	// Getting the hash for a TypeSet element that has dynamic elements isn't possible
 	// So instead we use an import test to make sure the resource can be imported properly.
-
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: accProviders,
-		CheckDestroy:      testAccCheckDatadogDashListDestroy(accProvider),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: accProviders,
+		CheckDestroy:             testAccCheckDatadogDashListDestroyWithFw(providers.frameworkProvider),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckDatadogDashListConfig(uniqueName),
@@ -150,14 +149,12 @@ func TestDatadogDashListImport(t *testing.T) {
 
 func TestDatadogDashListInDashboard(t *testing.T) {
 	t.Parallel()
-	ctx, accProviders := testAccProviders(context.Background(), t)
+	ctx, providers, accProviders := testAccFrameworkMuxProviders(context.Background(), t)
 	uniqueName := uniqueEntityName(ctx, t)
-	accProvider := testAccProvider(t, accProviders)
-
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: accProviders,
-		CheckDestroy:      testAccCheckDatadogDashListDestroy(accProvider),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: accProviders,
+		CheckDestroy:             testAccCheckDatadogDashListDestroyWithFw(providers.frameworkProvider),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckDatadogDashListConfigInDashboard(uniqueName),
@@ -183,32 +180,41 @@ func TestDatadogDashListInDashboard(t *testing.T) {
 	})
 }
 
+// Migrate this to fw when other dashboard resources are migrated
 func testAccCheckDatadogDashListDestroy(accProvider func() (*schema.Provider, error)) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		provider, _ := accProvider()
 		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV1 := providerConf.DatadogClientV1
-		authV1 := providerConf.AuthV1
+		apiInstances := providerConf.DatadogApiInstances
+		auth := providerConf.Auth
 
-		return datadogDashListDestroyHelper(authV1, s, datadogClientV1)
+		return datadogDashListDestroyHelper(auth, s, apiInstances)
 	}
 }
 
-func datadogDashListDestroyHelper(ctx context.Context, s *terraform.State, datadogClientV1 *datadogV1.APIClient) error {
+// remove this when all the dashboard resources are migrated to framework
+func testAccCheckDatadogDashListDestroyWithFw(accProvider *fwprovider.FrameworkProvider) func(*terraform.State) error {
+	return func(s *terraform.State) error {
+		apiInstances := accProvider.DatadogApiInstances
+		auth := accProvider.Auth
+		return datadogDashListDestroyHelper(auth, s, apiInstances)
+	}
+}
+
+func datadogDashListDestroyHelper(ctx context.Context, s *terraform.State, apiInstances *utils.ApiInstances) error {
 	for _, r := range s.RootModule().Resources {
-		if !strings.Contains(r.Primary.Attributes["name"], "List") {
+		if r.Type != "datadog_dashboard_list" {
 			continue
 		}
 		id, _ := strconv.Atoi(r.Primary.ID)
-		_, _, errList := datadogClientV1.DashboardListsApi.GetDashboardList(ctx, int64(id))
+		_, _, errList := apiInstances.GetDashboardListsApiV1().GetDashboardList(ctx, int64(id))
 		if errList != nil {
 			if strings.Contains(strings.ToLower(errList.Error()), "not found") {
 				continue
 			}
 			return fmt.Errorf("received an error retrieving Dash List %s", errList)
 		}
-
-		return fmt.Errorf("dashoard List still exists")
+		return fmt.Errorf("dashoard list still exists")
 	}
 	return nil
 }

@@ -7,14 +7,15 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/terraform-providers/terraform-provider-datadog/datadog"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
+	"github.com/terraform-providers/terraform-provider-datadog/datadog"
 )
 
 func TestAccDatadogMetricTagConfiguration_Error(t *testing.T) {
+	t.Parallel()
 	ctx, accProviders := testAccProviders(context.Background(), t)
 	uniqueMetricTagConfig := strings.ReplaceAll(uniqueEntityName(ctx, t), "-", "_")
 	accProvider := testAccProvider(t, accProviders)
@@ -36,27 +37,32 @@ func TestAccDatadogMetricTagConfiguration_Error(t *testing.T) {
 				Config:      testAccCheckDatadogMetricTagConfigurationAggregationsError(uniqueMetricTagConfig, "distribution"),
 				ExpectError: regexp.MustCompile("cannot use aggregations with a metric_type of distribution*"),
 			},
+			{
+				Config:      testAccCheckDatadogMetricTagConfigurationExcludeTagsModeError(uniqueMetricTagConfig),
+				ExpectError: regexp.MustCompile("cannot use exclude_tags_mode without configuring any tags"),
+			},
 		},
 	})
 }
 
 func testAccCheckDatadogMetricTagConfigurationIncludePercentilesError(uniq string, metricType string) string {
 	return fmt.Sprintf(`
-        resource "datadog_metric_tag_configuration" "testing_metric_tag_config_icl_count" {
-			metric_name = "%s"
-			metric_type = "%s"
-			tags = ["sport"]
+		resource "datadog_metric_tag_configuration" "testing_metric_tag_config_icl_count" {
+			metric_name         = "%s"
+			metric_type         = "%s"
+			tags                = ["sport"]
+			exclude_tags_mode   = false
 			include_percentiles = false
-        }
-    `, uniq, metricType)
+		}
+	`, uniq, metricType)
 }
 
 func testAccCheckDatadogMetricTagConfigurationAggregationsError(uniq string, metricType string) string {
 	return fmt.Sprintf(`
-        resource "datadog_metric_tag_configuration" "testing_metric_tag_config_aggregations" {
+		resource "datadog_metric_tag_configuration" "testing_metric_tag_config_aggregations" {
 			metric_name = "%s"
 			metric_type = "%s"
-			tags = ["sport"]
+			tags        = ["sport"]
 			aggregations {
 				time = "sum"
 				space = "sum"
@@ -65,8 +71,27 @@ func testAccCheckDatadogMetricTagConfigurationAggregationsError(uniq string, met
 				time = "avg"
 				space = "avg"
 			}
-        }
-    `, uniq, metricType)
+		}
+	`, uniq, metricType)
+}
+
+func testAccCheckDatadogMetricTagConfigurationExcludeTagsModeError(uniq string) string {
+	return fmt.Sprintf(`
+		resource "datadog_metric_tag_configuration" "testing_metric_tag_config_aggregations" {
+			metric_name       = "%s"
+			metric_type       = "gauge"
+			tags              = []
+			exclude_tags_mode = true
+			aggregations {
+				time = "sum"
+				space = "sum"
+			}
+			aggregations {
+				time = "avg"
+				space = "avg"
+			}
+		}
+	`, uniq)
 }
 
 func testAccCheckDatadogMetricTagConfigurationDestroy(accProvider func() (*schema.Provider, error)) func(*terraform.State) error {
@@ -74,8 +99,8 @@ func testAccCheckDatadogMetricTagConfigurationDestroy(accProvider func() (*schem
 		provider, _ := accProvider()
 		meta := provider.Meta()
 		providerConf := meta.(*datadog.ProviderConfiguration)
-		datadogClient := providerConf.DatadogClientV2
-		auth := providerConf.AuthV2
+		apiInstances := providerConf.DatadogApiInstances
+		auth := providerConf.Auth
 		for _, r := range s.RootModule().Resources {
 			if r.Type != "datadog_metric_tag_configuration" {
 				continue
@@ -85,7 +110,7 @@ func testAccCheckDatadogMetricTagConfigurationDestroy(accProvider func() (*schem
 
 			id := r.Primary.ID
 
-			_, resp, err := datadogClient.MetricsApi.ListTagConfigurationByName(auth, id)
+			_, resp, err := apiInstances.GetMetricsApiV2().ListTagConfigurationByName(auth, id)
 
 			if err != nil {
 				if resp.StatusCode == 404 {

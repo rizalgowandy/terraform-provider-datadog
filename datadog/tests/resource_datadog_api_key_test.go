@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/terraform-providers/terraform-provider-datadog/datadog"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
-	datadogV2 "github.com/DataDog/datadog-api-client-go/api/v2/datadog"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/terraform-providers/terraform-provider-datadog/datadog/fwprovider"
+	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/utils"
 )
 
 func TestAccDatadogApiKey_Update(t *testing.T) {
@@ -18,31 +17,50 @@ func TestAccDatadogApiKey_Update(t *testing.T) {
 		t.Skip("This test doesn't support recording or replaying")
 	}
 	t.Parallel()
-	ctx, accProviders := testAccProviders(context.Background(), t)
-	accProvider := testAccProvider(t, accProviders)
+	ctx, providers, accProviders := testAccFrameworkMuxProviders(context.Background(), t)
 	apiKeyName := uniqueEntityName(ctx, t)
 	apiKeyNameUpdate := apiKeyName + "-2"
 	resourceName := "datadog_api_key.foo"
+	var apiKey string
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: accProviders,
-		CheckDestroy:      testAccCheckDatadogApiKeyDestroy(accProvider),
+		ProtoV5ProviderFactories: accProviders,
+		CheckDestroy:             testAccCheckDatadogApiKeyDestroy(providers.frameworkProvider),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckDatadogApiKeyConfigRequired(apiKeyName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDatadogApiKeyExists(accProvider, resourceName),
+					testAccCheckDatadogApiKeyExists(providers.frameworkProvider, resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", apiKeyName),
-					testAccCheckDatadogApiKeyValueMatches(accProvider, resourceName),
+					resource.TestCheckResourceAttrSet(resourceName, "key"),
+					func(s *terraform.State) error {
+						resource, ok := s.RootModule().Resources[resourceName]
+						if !ok {
+							return fmt.Errorf("Resource not found: %s", resourceName)
+						}
+
+						apiKey = resource.Primary.Attributes["key"]
+						return nil
+					},
 				),
 			},
 			{
 				Config: testAccCheckDatadogApiKeyConfigRequired(apiKeyNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDatadogApiKeyExists(accProvider, resourceName),
+					testAccCheckDatadogApiKeyExists(providers.frameworkProvider, resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", apiKeyNameUpdate),
-					testAccCheckDatadogApiKeyValueMatches(accProvider, resourceName),
+					func(s *terraform.State) error {
+						resource, ok := s.RootModule().Resources[resourceName]
+						if !ok {
+							return fmt.Errorf("Resource not found: %s", resourceName)
+						}
+
+						stateAPIKey := resource.Primary.Attributes["key"]
+						if stateAPIKey != apiKey {
+							return fmt.Errorf("API key (%s) does not match expected value (%s)", stateAPIKey, apiKey)
+						}
+						return nil
+					},
 				),
 			},
 		},
@@ -55,14 +73,13 @@ func TestDatadogApiKey_import(t *testing.T) {
 	}
 	t.Parallel()
 	resourceName := "datadog_api_key.foo"
-	ctx, accProviders := testAccProviders(context.Background(), t)
+	ctx, providers, accProviders := testAccFrameworkMuxProviders(context.Background(), t)
 	apiKeyName := uniqueEntityName(ctx, t)
-	accProvider := testAccProvider(t, accProviders)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: accProviders,
-		CheckDestroy:      testAccCheckDatadogApiKeyDestroy(accProvider),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: accProviders,
+		CheckDestroy:             testAccCheckDatadogApiKeyDestroy(providers.frameworkProvider),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckDatadogApiKeyConfigRequired(apiKeyName),
@@ -83,79 +100,46 @@ resource "datadog_api_key" "foo" {
 }`, uniq)
 }
 
-func testAccCheckDatadogApiKeyExists(accProvider func() (*schema.Provider, error), n string) resource.TestCheckFunc {
+func testAccCheckDatadogApiKeyExists(accProvider *fwprovider.FrameworkProvider, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		provider, _ := accProvider()
-		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV2 := providerConf.DatadogClientV2
-		authV2 := providerConf.AuthV2
+		apiInstances := accProvider.DatadogApiInstances
+		auth := accProvider.Auth
 
-		if err := datadogApiKeyExistsHelper(authV2, s, datadogClientV2, n); err != nil {
+		if err := datadogApiKeyExistsHelper(auth, s, apiInstances, n); err != nil {
 			return err
 		}
 		return nil
 	}
 }
 
-func datadogApiKeyExistsHelper(ctx context.Context, s *terraform.State, client *datadogV2.APIClient, name string) error {
+func datadogApiKeyExistsHelper(ctx context.Context, s *terraform.State, apiInstances *utils.ApiInstances, name string) error {
 	id := s.RootModule().Resources[name].Primary.ID
-	if _, _, err := client.KeyManagementApi.GetAPIKey(ctx, id); err != nil {
+	if _, _, err := apiInstances.GetKeyManagementApiV2().GetAPIKey(ctx, id); err != nil {
 		return fmt.Errorf("received an error retrieving api key %s", err)
 	}
 	return nil
 }
 
-func testAccCheckDatadogApiKeyValueMatches(accProvider func() (*schema.Provider, error), n string) resource.TestCheckFunc {
+func testAccCheckDatadogApiKeyDestroy(accProvider *fwprovider.FrameworkProvider) func(*terraform.State) error {
 	return func(s *terraform.State) error {
-		provider, _ := accProvider()
-		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV2 := providerConf.DatadogClientV2
-		authV2 := providerConf.AuthV2
+		apiInstances := accProvider.DatadogApiInstances
+		auth := accProvider.Auth
 
-		if err := datadogApiKeyValueMatches(authV2, s, datadogClientV2, n); err != nil {
+		if err := datadogApiKeyDestroyHelper(auth, s, apiInstances); err != nil {
 			return err
 		}
 		return nil
 	}
 }
 
-func datadogApiKeyValueMatches(ctx context.Context, s *terraform.State, client *datadogV2.APIClient, name string) error {
-	primaryResource := s.RootModule().Resources[name].Primary
-	id := primaryResource.ID
-	expectedKey := primaryResource.Attributes["key"]
-	resp, _, err := client.KeyManagementApi.GetAPIKey(ctx, id)
-	if err != nil {
-		return fmt.Errorf("received an error retrieving api key %s", err)
-	}
-	actualKey := resp.Data.Attributes.GetKey()
-	if expectedKey != actualKey {
-		return fmt.Errorf("api key value does not match")
-	}
-	return nil
-}
-
-func testAccCheckDatadogApiKeyDestroy(accProvider func() (*schema.Provider, error)) func(*terraform.State) error {
-	return func(s *terraform.State) error {
-		provider, _ := accProvider()
-		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV2 := providerConf.DatadogClientV2
-		authV2 := providerConf.AuthV2
-
-		if err := datadogApiKeyDestroyHelper(authV2, s, datadogClientV2); err != nil {
-			return err
-		}
-		return nil
-	}
-}
-
-func datadogApiKeyDestroyHelper(ctx context.Context, s *terraform.State, client *datadogV2.APIClient) error {
+func datadogApiKeyDestroyHelper(ctx context.Context, s *terraform.State, apiInstances *utils.ApiInstances) error {
 	for _, r := range s.RootModule().Resources {
 		if r.Type != "datadog_api_key" {
 			continue
 		}
 
 		id := r.Primary.ID
-		_, httpResponse, err := client.KeyManagementApi.GetAPIKey(ctx, id)
+		_, httpResponse, err := apiInstances.GetKeyManagementApiV2().GetAPIKey(ctx, id)
 
 		if err != nil {
 			if httpResponse.StatusCode == 404 {

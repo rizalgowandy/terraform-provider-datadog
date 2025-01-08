@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestAccDatadogDashboardJSONBasicTimeboard(t *testing.T) {
@@ -131,14 +131,12 @@ func TestAccDatadogDashboardJSONImport(t *testing.T) {
 
 func TestDatadogDashListInDashboardJSON(t *testing.T) {
 	t.Parallel()
-	ctx, accProviders := testAccProviders(context.Background(), t)
+	ctx, providers, accProviders := testAccFrameworkMuxProviders(context.Background(), t)
 	uniqueName := uniqueEntityName(ctx, t)
-	accProvider := testAccProvider(t, accProviders)
-
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: accProviders,
-		CheckDestroy:      testAccCheckDatadogDashListDestroy(accProvider),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: accProviders,
+		CheckDestroy:             testAccCheckDatadogDashListDestroyWithFw(providers.frameworkProvider),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckDatadogDashListConfigInDashboardJSON(uniqueName),
@@ -180,6 +178,28 @@ func TestAccDatadogDashboardJSONRbacDiff(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"datadog_dashboard_json.timeboard_json", "dashboard", fmt.Sprintf("{\"description\":\"Created using the Datadog provider in Terraform\",\"layout_type\":\"ordered\",\"notify_list\":[],\"restricted_roles\":[],\"template_variables\":[],\"title\":\"%s\",\"widgets\":[{\"definition\":{\"alert_id\":\"895605\",\"precision\":3,\"text_align\":\"center\",\"title\":\"Widget Title\",\"type\":\"alert_value\",\"unit\":\"b\"}}]}", uniqueName)),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDatadogDashboardJSONNoDiff(t *testing.T) {
+	t.Parallel()
+	ctx, accProviders := testAccProviders(context.Background(), t)
+	uniqueName := uniqueEntityName(ctx, t)
+	accProvider := testAccProvider(t, accProviders)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: accProviders,
+		CheckDestroy:      testAccCheckDatadogDashListDestroy(accProvider),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckDatadogDashboardJSONNoDiff(uniqueName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"datadog_dashboard_json.timeboard_json", "dashboard", fmt.Sprintf("{\"description\":\"\",\"is_read_only\":false,\"layout_type\":\"ordered\",\"notify_list\":[],\"reflow_type\":\"fixed\",\"template_variables\":[],\"title\":\"%s\",\"widgets\":[]}", uniqueName)),
 				),
 			},
 		},
@@ -1992,6 +2012,24 @@ resource "datadog_dashboard_json" "timeboard_json" {
       
    ],
    "id":"5uw-bbj-xec"
+}
+EOF
+}`, uniq)
+}
+
+func testAccCheckDatadogDashboardJSONNoDiff(uniq string) string {
+	return fmt.Sprintf(`
+resource "datadog_dashboard_json" "timeboard_json" {
+   dashboard = <<EOF
+{
+   "title": "%s",
+   "description": "",
+   "widgets": [],
+   "template_variables": [],
+   "layout_type": "ordered",
+   "notify_list": [],
+   "reflow_type": "fixed",
+   "id": "3fa-nkp-wty"
 }
 EOF
 }`, uniq)

@@ -5,22 +5,22 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/terraform-providers/terraform-provider-datadog/datadog"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/terraform-providers/terraform-provider-datadog/datadog/fwprovider"
 )
 
 func testAccCheckDatadogIntegrationGCPConfig(uniq string) string {
 	return fmt.Sprintf(`
 resource "datadog_integration_gcp" "awesome_gcp_project_integration" {
-  project_id     = "%s"
-  private_key_id = "1234567890123456789012345678901234567890"
-  private_key    = "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-  client_email   = "%s@awesome-project-id.iam.gserviceaccount.com"
-  client_id      = "123456789012345678901"
-  host_filters   = "foo:bar,buzz:lightyear"
+  project_id                   = "%s"
+  private_key_id               = "1234567890123456789012345678901234567890"
+  private_key                  = "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+  client_email                 = "%s@awesome-project-id.iam.gserviceaccount.com"
+  client_id                    = "123456789012345678901"
+  host_filters                 = "foo:bar,buzz:lightyear"
+  cloud_run_revision_filters   = ["tag:one", "tag:two"]
 }`, uniq, uniq)
 }
 
@@ -32,6 +32,7 @@ resource "datadog_integration_gcp" "awesome_gcp_project_integration" {
   private_key    = "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
   client_email   = "%s@awesome-project-id.iam.gserviceaccount.com"
   client_id      = "123456789012345678901"
+  cloud_run_revision_filters   = ["tag:one", "tag:two"]
 }`, uniq, uniq)
 }
 
@@ -48,19 +49,19 @@ resource "datadog_integration_gcp" "awesome_gcp_project_integration" {
 }
 
 func TestAccDatadogIntegrationGCP(t *testing.T) {
-	ctx, accProviders := testAccProviders(context.Background(), t)
+	t.Parallel()
+	ctx, providers, accProviders := testAccFrameworkMuxProviders(context.Background(), t)
 	client := uniqueEntityName(ctx, t)
-	accProvider := testAccProvider(t, accProviders)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: accProviders,
-		CheckDestroy:      checkIntegrationGCPDestroy(accProvider),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: accProviders,
+		CheckDestroy:             checkIntegrationGCPDestroy(providers.frameworkProvider),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckDatadogIntegrationGCPConfig(client),
 				Check: resource.ComposeTestCheckFunc(
-					checkIntegrationGCPExists(accProvider),
+					checkIntegrationGCPExists(providers.frameworkProvider),
 					resource.TestCheckResourceAttr(
 						"datadog_integration_gcp.awesome_gcp_project_integration",
 						"project_id", client),
@@ -79,15 +80,28 @@ func TestAccDatadogIntegrationGCP(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"datadog_integration_gcp.awesome_gcp_project_integration",
 						"host_filters", "foo:bar,buzz:lightyear"),
+					resource.TestCheckTypeSetElemAttr(
+						"datadog_integration_gcp.awesome_gcp_project_integration", "cloud_run_revision_filters.*", "tag:two"),
+					resource.TestCheckTypeSetElemAttr(
+						"datadog_integration_gcp.awesome_gcp_project_integration", "cloud_run_revision_filters.*", "tag:one"),
 					resource.TestCheckResourceAttr(
 						"datadog_integration_gcp.awesome_gcp_project_integration",
 						"automute", "false"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_gcp.awesome_gcp_project_integration",
+						"is_security_command_center_enabled", "false"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_gcp.awesome_gcp_project_integration",
+						"is_resource_change_collection_enabled", "false"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_gcp.awesome_gcp_project_integration",
+						"cspm_resource_collection_enabled", "false"),
 				),
 			},
 			{
 				Config: testAccCheckDatadogIntegrationGCPEmptyHostFiltersConfig(client),
 				Check: resource.ComposeTestCheckFunc(
-					checkIntegrationGCPExists(accProvider),
+					checkIntegrationGCPExists(providers.frameworkProvider),
 					resource.TestCheckResourceAttr(
 						"datadog_integration_gcp.awesome_gcp_project_integration",
 						"project_id", client),
@@ -106,15 +120,28 @@ func TestAccDatadogIntegrationGCP(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"datadog_integration_gcp.awesome_gcp_project_integration",
 						"host_filters", ""),
+					resource.TestCheckTypeSetElemAttr(
+						"datadog_integration_gcp.awesome_gcp_project_integration", "cloud_run_revision_filters.*", "tag:two"),
+					resource.TestCheckTypeSetElemAttr(
+						"datadog_integration_gcp.awesome_gcp_project_integration", "cloud_run_revision_filters.*", "tag:one"),
 					resource.TestCheckResourceAttr(
 						"datadog_integration_gcp.awesome_gcp_project_integration",
 						"automute", "false"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_gcp.awesome_gcp_project_integration",
+						"is_security_command_center_enabled", "false"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_gcp.awesome_gcp_project_integration",
+						"is_resource_change_collection_enabled", "false"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_gcp.awesome_gcp_project_integration",
+						"cspm_resource_collection_enabled", "false"),
 				),
 			},
 			{
 				Config: testAccCheckDatadogIntegrationGCPUpdatePrivateKeyConfig(client),
 				Check: resource.ComposeTestCheckFunc(
-					checkIntegrationGCPExists(accProvider),
+					checkIntegrationGCPExists(providers.frameworkProvider),
 					resource.TestCheckResourceAttr(
 						"datadog_integration_gcp.awesome_gcp_project_integration",
 						"project_id", client),
@@ -133,23 +160,32 @@ func TestAccDatadogIntegrationGCP(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"datadog_integration_gcp.awesome_gcp_project_integration",
 						"host_filters", ""),
+					resource.TestCheckNoResourceAttr(
+						"datadog_integration_gcp.awesome_gcp_project_integration", "cloud_run_revision_filters"),
 					resource.TestCheckResourceAttr(
 						"datadog_integration_gcp.awesome_gcp_project_integration",
 						"automute", "true"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_gcp.awesome_gcp_project_integration",
+						"is_security_command_center_enabled", "false"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_gcp.awesome_gcp_project_integration",
+						"is_resource_change_collection_enabled", "false"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_gcp.awesome_gcp_project_integration",
+						"cspm_resource_collection_enabled", "false"),
 				),
 			},
 		},
 	})
 }
 
-func checkIntegrationGCPExists(accProvider func() (*schema.Provider, error)) func(*terraform.State) error {
+func checkIntegrationGCPExists(accProvider *fwprovider.FrameworkProvider) func(*terraform.State) error {
 	return func(s *terraform.State) error {
-		provider, _ := accProvider()
-		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV1 := providerConf.DatadogClientV1
-		authV1 := providerConf.AuthV1
+		apiInstances := accProvider.DatadogApiInstances
+		auth := accProvider.Auth
 
-		integrations, _, err := datadogClientV1.GCPIntegrationApi.ListGCPIntegration(authV1)
+		integrations, _, err := apiInstances.GetGCPIntegrationApiV1().ListGCPIntegration(auth)
 		if err != nil {
 			return err
 		}
@@ -166,14 +202,12 @@ func checkIntegrationGCPExists(accProvider func() (*schema.Provider, error)) fun
 	}
 }
 
-func checkIntegrationGCPDestroy(accProvider func() (*schema.Provider, error)) func(*terraform.State) error {
+func checkIntegrationGCPDestroy(accProvider *fwprovider.FrameworkProvider) func(*terraform.State) error {
 	return func(s *terraform.State) error {
-		provider, _ := accProvider()
-		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV1 := providerConf.DatadogClientV1
-		authV1 := providerConf.AuthV1
+		apiInstances := accProvider.DatadogApiInstances
+		auth := accProvider.Auth
 
-		integrations, _, err := datadogClientV1.GCPIntegrationApi.ListGCPIntegration(authV1)
+		integrations, _, err := apiInstances.GetGCPIntegrationApiV1().ListGCPIntegration(auth)
 		if err != nil {
 			return err
 		}

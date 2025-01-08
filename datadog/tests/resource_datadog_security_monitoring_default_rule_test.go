@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 const tfSecurityDefaultRuleName = "datadog_security_monitoring_default_rule.acceptance_test"
@@ -18,14 +18,65 @@ func TestAccDatadogSecurityMonitoringDefaultRule_Basic(t *testing.T) {
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: accProviders,
 		Steps: []resource.TestStep{
+			// Define an existing default rule as one we want to import
 			{
-				Config: testAccCheckDatadogSecurityMonitoringDefaultDatasource(),
+				Config: testAccDatadogSecurityMonitoringDefaultDatasource(),
 			},
+			// Import the rule
 			{
-				Config:            testAccCheckDatadogSecurityMonitoringDefaultNoop(),
-				ResourceName:      tfSecurityDefaultRuleName,
-				ImportState:       true,
-				ImportStateIdFunc: idFromDatasource,
+				Config:             testAccCheckDatadogSecurityMonitoringDefaultNoop(),
+				ResourceName:       tfSecurityDefaultRuleName,
+				ImportState:        true,
+				ImportStateIdFunc:  idFromDatasource,
+				ImportStatePersist: true,
+			},
+			// Change the "decrease criticality" flag
+			{
+				Config: testAccDatadogSecurityMonitoringDefaultRuleDynamicCriticality(),
+				Check:  testAccCheckDatadogSecurityMonitoringDefaultDynamicCriticality(),
+			},
+			// Add a tag to the list of tags
+			{
+				Config: testAccDatadogSecurityMonitoringDefaultRuleAddTag(),
+				Check:  testAccCheckDatadogSecurityMonitoringDefaultRuleAddTag(),
+			},
+		},
+	})
+}
+
+func TestAccDatadogSecurityMonitoringDefaultRule_DeprecationWarning(t *testing.T) {
+	if !isReplaying() {
+		t.Skip("this is a replay-only test")
+		return
+	}
+
+	t.Parallel()
+	_, accProviders := testAccProviders(context.Background(), t)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: accProviders,
+		Steps: []resource.TestStep{
+			// Define an existing rule
+			{
+				Config: testAccDatadogSecurityMonitoringDefaultDatasource(),
+			},
+			// Import the rule
+			{
+				Config:             testAccCheckDatadogSecurityMonitoringDefaultNoop(),
+				ResourceName:       tfSecurityDefaultRuleName,
+				ImportState:        true,
+				ImportStateIdFunc:  idFromDatasource,
+				ImportStatePersist: true,
+			},
+			// Change the "decrease criticality" flag
+			// For this specific test, we manually changed the cassette recording to set a deprecation date on the rule
+			// As of Jan 17, 2023, the TF testing framework does not provide a way to make assertions on warning
+			// See https://github.com/hashicorp/terraform-plugin-sdk/issues/864
+			// However, this test makes sure nothing breaks when the warning is returned
+			{
+				Config: testAccDatadogSecurityMonitoringDefaultRuleDynamicCriticality(),
+				Check:  testAccCheckDatadogSecurityMonitoringDefaultDynamicCriticality(),
 			},
 		},
 	})
@@ -37,10 +88,11 @@ func idFromDatasource(state *terraform.State) (string, error) {
 	return resourceState.Primary.Attributes["rule_ids.0"], nil
 }
 
-func testAccCheckDatadogSecurityMonitoringDefaultDatasource() string {
+func testAccDatadogSecurityMonitoringDefaultDatasource() string {
 	return `
 data "datadog_security_monitoring_rules" "bruteforce" {
-    name_filter = "brute"
+	tags_filter = ["source:cloudtrail"]
+	default_only_filter = "true"
 }
 `
 }
@@ -48,10 +100,55 @@ data "datadog_security_monitoring_rules" "bruteforce" {
 func testAccCheckDatadogSecurityMonitoringDefaultNoop() string {
 	return `
 data "datadog_security_monitoring_rules" "bruteforce" {
-    name_filter = "brute"
+	tags_filter = ["source:cloudtrail"]
+	default_only_filter = "true"
 }
 
 resource "datadog_security_monitoring_default_rule" "acceptance_test" {
 }
 `
+}
+
+func testAccDatadogSecurityMonitoringDefaultRuleDynamicCriticality() string {
+	return `
+resource "datadog_security_monitoring_default_rule" "acceptance_test" {
+	options {
+		decrease_criticality_based_on_env = true
+	}
+
+	custom_tags = [
+		"testtag:newtag",
+	]
+}
+`
+}
+
+func testAccCheckDatadogSecurityMonitoringDefaultDynamicCriticality() resource.TestCheckFunc {
+	return resource.ComposeTestCheckFunc(
+		resource.TestCheckResourceAttr(
+			tfSecurityDefaultRuleName, "options.0.decrease_criticality_based_on_env", "true"),
+	)
+}
+
+func testAccDatadogSecurityMonitoringDefaultRuleAddTag() string {
+	return `
+resource "datadog_security_monitoring_default_rule" "acceptance_test" {
+	options {
+		decrease_criticality_based_on_env = true
+	}
+	
+	custom_tags = [
+		"testtag:newtag",
+	]
+}
+`
+}
+
+func testAccCheckDatadogSecurityMonitoringDefaultRuleAddTag() resource.TestCheckFunc {
+	return resource.ComposeTestCheckFunc(
+		resource.TestCheckResourceAttr(
+			tfSecurityDefaultRuleName, "custom_tags.#", "1"),
+		resource.TestCheckResourceAttr(
+			tfSecurityDefaultRuleName, "custom_tags.0", "testtag:newtag"),
+	)
 }

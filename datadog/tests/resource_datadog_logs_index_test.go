@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 func TestAccDatadogLogsIndex_Basic(t *testing.T) {
@@ -20,6 +20,7 @@ func TestAccDatadogLogsIndex_Basic(t *testing.T) {
 		return
 	}
 
+	t.Parallel()
 	ctx, accProviders := testAccProviders(context.Background(), t)
 	uniq := strings.ToLower(strings.ReplaceAll(uniqueEntityName(ctx, t), "_", "-"))
 
@@ -33,8 +34,12 @@ func TestAccDatadogLogsIndex_Basic(t *testing.T) {
 					sleep(),
 					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "name", uniq),
 					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "daily_limit", "200000"),
+					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "daily_limit_reset.0.reset_time", "10:00"),
+					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "daily_limit_reset.0.reset_utc_offset", "+02:00"),
+					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "daily_limit_warning_threshold_percentage", "70"),
 					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "disable_daily_limit", "false"),
 					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "retention_days", "15"),
+					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "flex_retention_days", "180"),
 					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "filter.#", "1"),
 					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "filter.0.query", "non-existent-query"),
 					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "exclusion_filter.#", "0"),
@@ -46,6 +51,9 @@ func TestAccDatadogLogsIndex_Basic(t *testing.T) {
 					sleep(),
 					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "name", uniq),
 					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "daily_limit", "20000"),
+					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "daily_limit_reset.0.reset_time", "12:00"),
+					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "daily_limit_reset.0.reset_utc_offset", "-02:00"),
+					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "daily_limit_warning_threshold_percentage", "99.99"),
 					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "disable_daily_limit", "false"),
 					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "retention_days", "15"),
 					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "filter.0.query", "test:query"),
@@ -56,14 +64,33 @@ func TestAccDatadogLogsIndex_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config:                    testAccCheckDatadogUpdateLogsIndexDisableDailyLimitConfig(uniq),
-				PreventPostDestroyRefresh: true,
+				Config: testAccCheckDatadogUpdateLogsIndexDisableDailyLimitConfig(uniq),
 				Check: resource.ComposeTestCheckFunc(
 					sleep(),
 					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "name", uniq),
 					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "disable_daily_limit", "true"),
 					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "retention_days", "15"),
 					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "exclusion_filter.#", "0"),
+				),
+			},
+			{
+				Config: testAccCheckDatadogUpdateLogsIndexZeroRetentionConfig(uniq),
+				Check: resource.ComposeTestCheckFunc(
+					sleep(),
+					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "name", uniq),
+					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "retention_days", "0"),
+					resource.TestCheckResourceAttr("datadog_logs_index.sample_index", "flex_retention_days", "360"),
+				),
+			},
+			{
+				Config: testAccCheckDatadogCreateFlexOnlyLogsIndexConfig(uniq + "-flex"),
+				Check: resource.ComposeTestCheckFunc(
+					sleep(),
+					resource.TestCheckResourceAttr("datadog_logs_index.sample_flex_index", "name", uniq+"-flex"),
+					resource.TestCheckResourceAttr("datadog_logs_index.sample_flex_index", "retention_days", "0"),
+					resource.TestCheckResourceAttr("datadog_logs_index.sample_flex_index", "flex_retention_days", "360"),
+					resource.TestCheckResourceAttr("datadog_logs_index.sample_flex_index", "filter.#", "1"),
+					resource.TestCheckResourceAttr("datadog_logs_index.sample_flex_index", "filter.0.query", "non-existent-flex-query"),
 				),
 			},
 		},
@@ -85,9 +112,27 @@ func testAccCheckDatadogCreateLogsIndexConfig(name string) string {
 resource "datadog_logs_index" "sample_index" {
   name           = "%s"
   daily_limit    = 200000
+  daily_limit_reset {
+	reset_time = "10:00"
+	reset_utc_offset = "+02:00"
+  }
+  daily_limit_warning_threshold_percentage = 70
   retention_days = 15
+  flex_retention_days = 180
   filter {
     query = "non-existent-query"
+  }
+}
+`, name)
+}
+
+func testAccCheckDatadogCreateFlexOnlyLogsIndexConfig(name string) string {
+	return fmt.Sprintf(`
+resource "datadog_logs_index" "sample_flex_index" {
+  name           = "%s"
+  flex_retention_days = 360
+  filter {
+    query = "non-existent-flex-query"
   }
 }
 `, name)
@@ -98,8 +143,14 @@ func testAccCheckDatadogUpdateLogsIndexConfig(name string) string {
 resource "datadog_logs_index" "sample_index" {
   name                   = "%s"
   daily_limit            = 20000
+  daily_limit_reset {
+	reset_time = "12:00"
+	reset_utc_offset = "-02:00"
+  }
+  daily_limit_warning_threshold_percentage = 99.99
   disable_daily_limit    = false
   retention_days         = 15
+  flex_retention_days = 180
   filter {
     query                = "test:query"
   }
@@ -120,8 +171,34 @@ func testAccCheckDatadogUpdateLogsIndexDisableDailyLimitConfig(name string) stri
 resource "datadog_logs_index" "sample_index" {
   name                   = "%s"
   daily_limit            = 20000
+  daily_limit_reset {
+	reset_time = "10:00"
+	reset_utc_offset = "+02:00"
+  }
+  daily_limit_warning_threshold_percentage = 70
   disable_daily_limit    = true
   retention_days         = 15
+  flex_retention_days = 180
+  filter {
+    query                = "test:query"
+  }
+}
+`, name)
+}
+
+func testAccCheckDatadogUpdateLogsIndexZeroRetentionConfig(name string) string {
+	return fmt.Sprintf(`
+resource "datadog_logs_index" "sample_index" {
+  name                   = "%s"
+  daily_limit            = 20000
+  daily_limit_reset {
+	reset_time = "10:00"
+	reset_utc_offset = "+02:00"
+  }
+  daily_limit_warning_threshold_percentage = 70
+  disable_daily_limit    = true
+  retention_days         = 0
+  flex_retention_days = 360
   filter {
     query                = "test:query"
   }

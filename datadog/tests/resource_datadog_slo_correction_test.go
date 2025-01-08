@@ -8,9 +8,9 @@ import (
 	"github.com/terraform-providers/terraform-provider-datadog/datadog"
 	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/utils"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 func TestAccDatadogSloCorrection_Basic(t *testing.T) {
@@ -252,15 +252,15 @@ func testAccCheckDatadogSloCorrectionExists(accProvider func() (*schema.Provider
 	return func(s *terraform.State) error {
 		provider, _ := accProvider()
 		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClient := providerConf.DatadogClientV1
-		auth := providerConf.AuthV1
+		apiInstances := providerConf.DatadogApiInstances
+		auth := providerConf.Auth
 
 		for _, r := range s.RootModule().Resources {
 			if r.Type != "datadog_slo_correction" {
 				continue
 			}
 			id := r.Primary.ID
-			if _, httpresp, err := datadogClient.ServiceLevelObjectiveCorrectionsApi.GetSLOCorrection(auth, id); err != nil {
+			if _, httpresp, err := apiInstances.GetServiceLevelObjectiveCorrectionsApiV1().GetSLOCorrection(auth, id); err != nil {
 				return utils.TranslateClientError(err, httpresp, "error checking slo_correction existence")
 			}
 		}
@@ -272,8 +272,8 @@ func testAccCheckDatadogSloCorrectionDestroy(accProvider func() (*schema.Provide
 	return func(s *terraform.State) error {
 		provider, _ := accProvider()
 		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClient := providerConf.DatadogClientV1
-		auth := providerConf.AuthV1
+		apiInstances := providerConf.DatadogApiInstances
+		auth := providerConf.Auth
 		for _, r := range s.RootModule().Resources {
 			if r.Type != "datadog_slo_correction" {
 				continue
@@ -283,7 +283,7 @@ func testAccCheckDatadogSloCorrectionDestroy(accProvider func() (*schema.Provide
 
 			id := r.Primary.ID
 
-			_, resp, err := datadogClient.ServiceLevelObjectiveCorrectionsApi.GetSLOCorrection(auth, id)
+			_, resp, err := apiInstances.GetServiceLevelObjectiveCorrectionsApiV1().GetSLOCorrection(auth, id)
 
 			if err != nil {
 				if resp.StatusCode == 404 {

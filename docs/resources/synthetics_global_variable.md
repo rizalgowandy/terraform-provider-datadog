@@ -26,44 +26,63 @@ resource "datadog_synthetics_global_variable" "test_variable" {
 
 ### Required
 
-- **name** (String) Synthetics global variable name.
-- **value** (String, Sensitive) The value of the global variable.
+- `name` (String) Synthetics global variable name.
+- `value` (String, Sensitive) The value of the global variable.
 
 ### Optional
 
-- **description** (String) Description of the global variable.
-- **parse_test_id** (String) Id of the Synthetics test to use for a variable from test.
-- **parse_test_options** (Block List, Max: 1) ID of the Synthetics test to use a source of the global variable value. (see [below for nested schema](#nestedblock--parse_test_options))
-- **restricted_roles** (Set of String) A list of role identifiers to associate with the Synthetics global variable.
-- **secure** (Boolean) If set to true, the value of the global variable is hidden. Defaults to `false`.
-- **tags** (List of String) A list of tags to associate with your synthetics global variable.
+- `description` (String) Description of the global variable.
+- `options` (Block List, Max: 1) Additional options for the variable, such as a MFA token. (see [below for nested schema](#nestedblock--options))
+- `parse_test_id` (String) Id of the Synthetics test to use for a variable from test.
+- `parse_test_options` (Block List, Max: 1) ID of the Synthetics test to use a source of the global variable value. (see [below for nested schema](#nestedblock--parse_test_options))
+- `restricted_roles` (Set of String) A list of role identifiers to associate with the Synthetics global variable.
+- `secure` (Boolean) If set to true, the value of the global variable is hidden. Defaults to `false`.
+- `tags` (List of String) A list of tags to associate with your synthetics global variable.
 
 ### Read-Only
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
+
+<a id="nestedblock--options"></a>
+### Nested Schema for `options`
+
+Optional:
+
+- `totp_parameters` (Block List, Max: 1) Parameters needed for MFA/TOTP. (see [below for nested schema](#nestedblock--options--totp_parameters))
+
+<a id="nestedblock--options--totp_parameters"></a>
+### Nested Schema for `options.totp_parameters`
+
+Required:
+
+- `digits` (Number) Number of digits for the OTP.
+- `refresh_interval` (Number) Interval for which to refresh the token (in seconds).
+
+
 
 <a id="nestedblock--parse_test_options"></a>
 ### Nested Schema for `parse_test_options`
 
 Required:
 
-- **parser** (Block List, Min: 1, Max: 1) (see [below for nested schema](#nestedblock--parse_test_options--parser))
-- **type** (String) Defines the source to use to extract the value. Valid values are `http_body`, `http_header`.
+- `type` (String) Defines the source to use to extract the value. Valid values are `http_body`, `http_header`, `http_status_code`, `local_variable`.
 
 Optional:
 
-- **field** (String) Required when type = `http_header`. Defines the header to use to extract the value
+- `field` (String) Required when type = `http_header`. Defines the header to use to extract the value
+- `local_variable_name` (String) When type is `local_variable`, name of the local variable to use to extract the value.
+- `parser` (Block List, Max: 1) (see [below for nested schema](#nestedblock--parse_test_options--parser))
 
 <a id="nestedblock--parse_test_options--parser"></a>
 ### Nested Schema for `parse_test_options.parser`
 
 Required:
 
-- **type** (String) Type of parser to extract the value. Valid values are `raw`, `json_path`, `regex`, `x_path`.
+- `type` (String) Type of parser to extract the value. Valid values are `raw`, `json_path`, `regex`, `x_path`.
 
 Optional:
 
-- **value** (String) Value for the parser to use, required for type `json_path` or `regex`.
+- `value` (String) Value for the parser to use, required for type `json_path` or `regex`.
 
 ## Import
 

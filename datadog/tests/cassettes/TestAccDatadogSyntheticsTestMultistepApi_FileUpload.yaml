@@ -1,0 +1,641 @@
+---
+version: 2
+interactions:
+    - id: 0
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 886
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"content":"this is the original file content","name":"file1","originalFileName":"file.txt","size":33,"type":"text/plain"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http"}]},"locations":["aws:eu-central-1"],"message":"Notify @datadog.user","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"status":"paused","subtype":"multi","tags":[],"type":"api"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/api
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"byn-458-8qv","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","status":"paused","type":"api","subtype":"multi","tags":[],"created_at":"2024-12-09T11:57:32.661772+00:00","modified_at":"2024-12-09T11:57:32.661772+00:00","config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"name":"file1","originalFileName":"file.txt","size":33,"type":"text/plain","bucketKey":"api-upload-file/byn-458-8qv/2024-12-09T11:57:32.457097_5cf618e3-4949-4b6b-9f47-e889b65abee5.json"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http","id":"rv9-8x4-qkc"}]},"message":"Notify @datadog.user","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"locations":["aws:eu-central-1"],"created_by":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"},"deleted_at":null,"monitor_id":159883346,"org_id":321813,"modified_by":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 553.722708ms
+    - id: 1
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/api/byn-458-8qv
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"byn-458-8qv","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","status":"paused","type":"api","subtype":"multi","tags":[],"created_at":"2024-12-09T11:57:32.661772+00:00","modified_at":"2024-12-09T11:57:32.661772+00:00","config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"name":"file1","originalFileName":"file.txt","size":33,"type":"text/plain","bucketKey":"api-upload-file/byn-458-8qv/2024-12-09T11:57:32.457097_5cf618e3-4949-4b6b-9f47-e889b65abee5.json"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http","id":"rv9-8x4-qkc"}]},"message":"Notify @datadog.user","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"locations":["aws:eu-central-1"],"monitor_id":159883346,"creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 154.2355ms
+    - id: 2
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/byn-458-8qv
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"byn-458-8qv","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","status":"paused","type":"api","subtype":"multi","tags":[],"created_at":"2024-12-09T11:57:32.661772+00:00","modified_at":"2024-12-09T11:57:32.661772+00:00","config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"name":"file1","originalFileName":"file.txt","size":33,"type":"text/plain","bucketKey":"api-upload-file/byn-458-8qv/2024-12-09T11:57:32.457097_5cf618e3-4949-4b6b-9f47-e889b65abee5.json"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http","id":"rv9-8x4-qkc"}]},"message":"Notify @datadog.user","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"locations":["aws:eu-central-1"],"monitor_id":159883346,"creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 163.46525ms
+    - id: 3
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/byn-458-8qv
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"byn-458-8qv","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","status":"paused","type":"api","subtype":"multi","tags":[],"created_at":"2024-12-09T11:57:32.661772+00:00","modified_at":"2024-12-09T11:57:32.661772+00:00","config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"name":"file1","originalFileName":"file.txt","size":33,"type":"text/plain","bucketKey":"api-upload-file/byn-458-8qv/2024-12-09T11:57:32.457097_5cf618e3-4949-4b6b-9f47-e889b65abee5.json"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http","id":"rv9-8x4-qkc"}]},"message":"Notify @datadog.user","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"locations":["aws:eu-central-1"],"monitor_id":159883346,"creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 148.672083ms
+    - id: 4
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/api/byn-458-8qv
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"byn-458-8qv","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","status":"paused","type":"api","subtype":"multi","tags":[],"created_at":"2024-12-09T11:57:32.661772+00:00","modified_at":"2024-12-09T11:57:32.661772+00:00","config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"name":"file1","originalFileName":"file.txt","size":33,"type":"text/plain","bucketKey":"api-upload-file/byn-458-8qv/2024-12-09T11:57:32.457097_5cf618e3-4949-4b6b-9f47-e889b65abee5.json"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http","id":"rv9-8x4-qkc"}]},"message":"Notify @datadog.user","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"locations":["aws:eu-central-1"],"monitor_id":159883346,"creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 233.065584ms
+    - id: 5
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/byn-458-8qv
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"byn-458-8qv","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","status":"paused","type":"api","subtype":"multi","tags":[],"created_at":"2024-12-09T11:57:32.661772+00:00","modified_at":"2024-12-09T11:57:32.661772+00:00","config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"name":"file1","originalFileName":"file.txt","size":33,"type":"text/plain","bucketKey":"api-upload-file/byn-458-8qv/2024-12-09T11:57:32.457097_5cf618e3-4949-4b6b-9f47-e889b65abee5.json"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http","id":"rv9-8x4-qkc"}]},"message":"Notify @datadog.user","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"locations":["aws:eu-central-1"],"monitor_id":159883346,"creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 359.349834ms
+    - id: 6
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/api/byn-458-8qv
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"byn-458-8qv","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","status":"paused","type":"api","subtype":"multi","tags":[],"created_at":"2024-12-09T11:57:32.661772+00:00","modified_at":"2024-12-09T11:57:32.661772+00:00","config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"name":"file1","originalFileName":"file.txt","size":33,"type":"text/plain","bucketKey":"api-upload-file/byn-458-8qv/2024-12-09T11:57:32.457097_5cf618e3-4949-4b6b-9f47-e889b65abee5.json"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http","id":"rv9-8x4-qkc"}]},"message":"Notify @datadog.user","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"locations":["aws:eu-central-1"],"monitor_id":159883346,"creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 187.536542ms
+    - id: 7
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 881
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"content":"this is the new file content","name":"file1","originalFileName":"file.txt","size":28,"type":"text/plain"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http"}]},"locations":["aws:eu-central-1"],"message":"Notify @datadog.user","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"status":"paused","subtype":"multi","tags":[],"type":"api"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/api/byn-458-8qv
+        method: PUT
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"org_id":321813,"public_id":"byn-458-8qv","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","status":"paused","type":"api","tags":[],"message":"Notify @datadog.user","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"locations":["aws:eu-central-1"],"created_at":"2024-12-09T11:57:32.661772+00:00","modified_at":"2024-12-09T11:57:41.539525+00:00","config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"name":"file1","originalFileName":"file.txt","size":28,"type":"text/plain","bucketKey":"api-upload-file/byn-458-8qv/2024-12-09T11:57:41.390165_58e099b3-7007-43d2-aac1-aeb615a00cb3.json"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http","id":"a55-y6m-hef"}]},"overall_state_modified":"2024-12-09T11:57:41.634761+00:00","subtype":"multi","monitor_id":159883346,"created_by":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"},"modified_by":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"},"overall_state":2}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 737.013166ms
+    - id: 8
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/byn-458-8qv
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"byn-458-8qv","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","status":"paused","type":"api","subtype":"multi","tags":[],"created_at":"2024-12-09T11:57:32.661772+00:00","modified_at":"2024-12-09T11:57:41.539525+00:00","config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"name":"file1","originalFileName":"file.txt","size":28,"type":"text/plain","bucketKey":"api-upload-file/byn-458-8qv/2024-12-09T11:57:41.390165_58e099b3-7007-43d2-aac1-aeb615a00cb3.json"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http","id":"a55-y6m-hef"}]},"message":"Notify @datadog.user","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"locations":["aws:eu-central-1"],"monitor_id":159883346,"creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 158.102708ms
+    - id: 9
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/byn-458-8qv
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"byn-458-8qv","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","status":"paused","type":"api","subtype":"multi","tags":[],"created_at":"2024-12-09T11:57:32.661772+00:00","modified_at":"2024-12-09T11:57:41.539525+00:00","config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"name":"file1","originalFileName":"file.txt","size":28,"type":"text/plain","bucketKey":"api-upload-file/byn-458-8qv/2024-12-09T11:57:41.390165_58e099b3-7007-43d2-aac1-aeb615a00cb3.json"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http","id":"a55-y6m-hef"}]},"message":"Notify @datadog.user","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"locations":["aws:eu-central-1"],"monitor_id":159883346,"creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 164.262292ms
+    - id: 10
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/api/byn-458-8qv
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"byn-458-8qv","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","status":"paused","type":"api","subtype":"multi","tags":[],"created_at":"2024-12-09T11:57:32.661772+00:00","modified_at":"2024-12-09T11:57:41.539525+00:00","config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"name":"file1","originalFileName":"file.txt","size":28,"type":"text/plain","bucketKey":"api-upload-file/byn-458-8qv/2024-12-09T11:57:41.390165_58e099b3-7007-43d2-aac1-aeb615a00cb3.json"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http","id":"a55-y6m-hef"}]},"message":"Notify @datadog.user","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"locations":["aws:eu-central-1"],"monitor_id":159883346,"creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 145.66275ms
+    - id: 11
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/byn-458-8qv
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"byn-458-8qv","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","status":"paused","type":"api","subtype":"multi","tags":[],"created_at":"2024-12-09T11:57:32.661772+00:00","modified_at":"2024-12-09T11:57:41.539525+00:00","config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"name":"file1","originalFileName":"file.txt","size":28,"type":"text/plain","bucketKey":"api-upload-file/byn-458-8qv/2024-12-09T11:57:41.390165_58e099b3-7007-43d2-aac1-aeb615a00cb3.json"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http","id":"a55-y6m-hef"}]},"message":"Notify @datadog.user","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"locations":["aws:eu-central-1"],"monitor_id":159883346,"creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 166.87175ms
+    - id: 12
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/api/byn-458-8qv
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"byn-458-8qv","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","status":"paused","type":"api","subtype":"multi","tags":[],"created_at":"2024-12-09T11:57:32.661772+00:00","modified_at":"2024-12-09T11:57:41.539525+00:00","config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"name":"file1","originalFileName":"file.txt","size":28,"type":"text/plain","bucketKey":"api-upload-file/byn-458-8qv/2024-12-09T11:57:41.390165_58e099b3-7007-43d2-aac1-aeb615a00cb3.json"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http","id":"a55-y6m-hef"}]},"message":"Notify @datadog.user","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"locations":["aws:eu-central-1"],"monitor_id":159883346,"creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 146.26375ms
+    - id: 13
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/byn-458-8qv
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"byn-458-8qv","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","status":"paused","type":"api","subtype":"multi","tags":[],"created_at":"2024-12-09T11:57:32.661772+00:00","modified_at":"2024-12-09T11:57:41.539525+00:00","config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"name":"file1","originalFileName":"file.txt","size":28,"type":"text/plain","bucketKey":"api-upload-file/byn-458-8qv/2024-12-09T11:57:41.390165_58e099b3-7007-43d2-aac1-aeb615a00cb3.json"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http","id":"a55-y6m-hef"}]},"message":"Notify @datadog.user","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"locations":["aws:eu-central-1"],"monitor_id":159883346,"creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 153.009458ms
+    - id: 14
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/byn-458-8qv
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"byn-458-8qv","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","status":"paused","type":"api","subtype":"multi","tags":[],"created_at":"2024-12-09T11:57:32.661772+00:00","modified_at":"2024-12-09T11:57:41.539525+00:00","config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"name":"file1","originalFileName":"file.txt","size":28,"type":"text/plain","bucketKey":"api-upload-file/byn-458-8qv/2024-12-09T11:57:41.390165_58e099b3-7007-43d2-aac1-aeb615a00cb3.json"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http","id":"a55-y6m-hef"}]},"message":"Notify @datadog.user","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"locations":["aws:eu-central-1"],"monitor_id":159883346,"creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 233.088209ms
+    - id: 15
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/api/byn-458-8qv
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"byn-458-8qv","name":"tf-TestAccDatadogSyntheticsTestMultistepApi_FileUpload-local-1733745449","status":"paused","type":"api","subtype":"multi","tags":[],"created_at":"2024-12-09T11:57:32.661772+00:00","modified_at":"2024-12-09T11:57:41.539525+00:00","config":{"assertions":[],"configVariables":[],"steps":[{"allowFailure":false,"assertions":[{"operator":"is","target":200,"type":"statusCode"}],"exitIfSucceed":false,"extractedValues":[],"isCritical":false,"name":"Upload file","request":{"allow_insecure":false,"bodyType":"multipart/form-data","files":[{"name":"file1","originalFileName":"file.txt","size":28,"type":"text/plain","bucketKey":"api-upload-file/byn-458-8qv/2024-12-09T11:57:41.390165_58e099b3-7007-43d2-aac1-aeb615a00cb3.json"}],"follow_redirects":false,"httpVersion":"any","method":"GET","noSavingResponseBody":true,"persistCookies":false,"timeout":30,"url":"https://www.datadoghq.com"},"subtype":"http","id":"a55-y6m-hef"}]},"message":"Notify @datadog.user","options":{"httpVersion":"any","min_location_failed":1,"tick_every":60},"locations":["aws:eu-central-1"],"monitor_id":159883346,"creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 156.35375ms
+    - id: 16
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 31
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"public_ids":["byn-458-8qv"]}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/delete
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"deleted_tests":[{"public_id":"byn-458-8qv","deleted_at":"2024-12-09T11:57:49.620154+00:00"}]}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 697.313292ms
+    - id: 17
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/byn-458-8qv
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: '{"errors":["Synthetics test not found"]}'
+        headers:
+            Content-Type:
+                - application/json
+        status: 404 Not Found
+        code: 404
+        duration: 133.429584ms
