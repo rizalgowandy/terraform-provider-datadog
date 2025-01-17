@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/utils"
 	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/validators"
 
-	datadogV2 "github.com/DataDog/datadog-api-client-go/api/v2/datadog"
+	"github.com/DataDog/datadog-api-client-go/v2/api/datadogV2"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -24,59 +25,113 @@ func resourceDatadogSecurityMonitoringDefaultRule() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
-		Schema: map[string]*schema.Schema{
-			"case": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: "Cases of the rule, this is used to update notifications.",
-				MaxItems:    10,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"status": {
-							Type:             schema.TypeString,
-							ValidateDiagFunc: validators.ValidateEnumValue(datadogV2.NewSecurityMonitoringRuleSeverityFromValue),
-							Required:         true,
-							Description:      "Status of the rule case to match.",
-						},
-						"notifications": {
-							Type:        schema.TypeList,
-							Required:    true,
-							Description: "Notification targets for each rule case.",
-							Elem:        &schema.Schema{Type: schema.TypeString},
-						},
-					},
-				},
-			},
-
-			"enabled": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     true,
-				Description: "Enable the rule.",
-			},
-
-			"filter": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: "Additional queries to filter matched events before they are processed.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"action": {
-							Type:             schema.TypeString,
-							ValidateDiagFunc: validators.ValidateEnumValue(datadogV2.NewSecurityMonitoringFilterActionFromValue),
-							Required:         true,
-							Description:      "The type of filtering action. Allowed enum values: require, suppress",
-						},
-						"query": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "Query for selecting logs to apply the filtering action.",
+		SchemaFunc: func() map[string]*schema.Schema {
+			return map[string]*schema.Schema{
+				"case": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					Description: "Cases of the rule, this is used to update notifications.",
+					MaxItems:    10,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"status": {
+								Type:             schema.TypeString,
+								ValidateDiagFunc: validators.ValidateEnumValue(datadogV2.NewSecurityMonitoringRuleSeverityFromValue),
+								Required:         true,
+								Description:      "Status of the rule case to match.",
+							},
+							"notifications": {
+								Type:        schema.TypeList,
+								Required:    true,
+								Description: "Notification targets for each rule case.",
+								Elem:        &schema.Schema{Type: schema.TypeString},
+							},
 						},
 					},
 				},
-			},
+
+				"enabled": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Default:     true,
+					Description: "Enable the rule.",
+				},
+
+				"filter": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					Description: "Additional queries to filter matched events before they are processed.",
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"action": {
+								Type:             schema.TypeString,
+								ValidateDiagFunc: validators.ValidateEnumValue(datadogV2.NewSecurityMonitoringFilterActionFromValue),
+								Required:         true,
+								Description:      "The type of filtering action. Allowed enum values: require, suppress",
+							},
+							"query": {
+								Type:        schema.TypeString,
+								Required:    true,
+								Description: "Query for selecting logs to apply the filtering action.",
+							},
+						},
+					},
+				},
+
+				"options": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					MaxItems:    1,
+					Description: "Options on default rules. Note that only a subset of fields can be updated on default rule options.",
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"decrease_criticality_based_on_env": {
+								Type:        schema.TypeBool,
+								Optional:    true,
+								Default:     false,
+								Description: "If true, signals in non-production environments have a lower severity than what is defined by the rule case, which can reduce noise. The decrement is applied when the environment tag of the signal starts with `staging`, `test`, or `dev`. Only available when the rule type is `log_detection`.",
+							},
+						},
+					},
+				},
+
+				"type": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: "The rule type.",
+				},
+
+				"custom_tags": {
+					Type:        schema.TypeSet,
+					Optional:    true,
+					Description: "Custom tags for generated signals.",
+					Elem:        &schema.Schema{Type: schema.TypeString},
+				},
+			}
 		},
 	}
+}
+
+func securityMonitoringRuleDeprecationWarning(rule securityMonitoringRuleResponseInterface) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	if deprecationTimestampMs, ok := rule.GetDeprecationDateOk(); ok {
+		deprecation := time.UnixMilli(*deprecationTimestampMs)
+
+		warning := diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  fmt.Sprintf("Rule will be deprecated on %s.", deprecation.Format("Jan _2 2006")),
+			Detail: "Please consider deleting the associated resource. " +
+				"After the depreciation date, the rule will stop triggering signals. " +
+				" Moreover, the API will reject any call to update the rule, which might break your Terraform pipeline. " +
+				"The Datadog team performs regular audit of all detection rules to maintain high fidelity signal quality. " +
+				"We will be replacing this rule with an improved third party detection rule after the depreciation date.",
+		}
+
+		diags = append(diags, warning)
+	}
+
+	return diags
 }
 
 func resourceDatadogSecurityMonitoringDefaultRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -85,11 +140,11 @@ func resourceDatadogSecurityMonitoringDefaultRuleCreate(ctx context.Context, d *
 
 func resourceDatadogSecurityMonitoringDefaultRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	providerConf := meta.(*ProviderConfiguration)
-	datadogClientV2 := providerConf.DatadogClientV2
-	authV2 := providerConf.AuthV2
+	apiInstances := providerConf.DatadogApiInstances
+	auth := providerConf.Auth
 
 	id := d.Id()
-	ruleResponse, _, err := datadogClientV2.SecurityMonitoringApi.GetSecurityMonitoringRule(authV2, id)
+	ruleResponse, _, err := apiInstances.GetSecurityMonitoringApiV2().GetSecurityMonitoringRule(auth, id)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -97,7 +152,12 @@ func resourceDatadogSecurityMonitoringDefaultRuleRead(ctx context.Context, d *sc
 		return diag.FromErr(err)
 	}
 
-	d.Set("enabled", *ruleResponse.IsEnabled)
+	rule := ruleResponse.SecurityMonitoringStandardRuleResponse
+	if rule == nil {
+		return diag.Errorf("signal rule type is not currently supported")
+	}
+
+	d.Set("enabled", *rule.IsEnabled)
 
 	if v, ok := d.GetOk("case"); ok {
 		tfCasesRaw := v.([]interface{})
@@ -106,7 +166,7 @@ func resourceDatadogSecurityMonitoringDefaultRuleRead(ctx context.Context, d *sc
 			tfCase := tfCaseRaw.(map[string]interface{})
 			var ruleCase *datadogV2.SecurityMonitoringRuleCase
 			tfStatus := datadogV2.SecurityMonitoringRuleSeverity(tfCase["status"].(string))
-			for _, rc := range ruleResponse.GetCases() {
+			for _, rc := range rule.GetCases() {
 				if *rc.Status == tfStatus {
 					ruleCase = &rc
 					break
@@ -123,8 +183,8 @@ func resourceDatadogSecurityMonitoringDefaultRuleRead(ctx context.Context, d *sc
 		}
 	}
 
-	ruleFilters := make([]map[string]interface{}, len(ruleResponse.GetFilters()))
-	for idx, responseRuleFilter := range ruleResponse.GetFilters() {
+	ruleFilters := make([]map[string]interface{}, len(rule.GetFilters()))
+	for idx, responseRuleFilter := range rule.GetFilters() {
 		ruleFilters[idx] = map[string]interface{}{
 			"action": responseRuleFilter.GetAction(),
 			"query":  responseRuleFilter.GetQuery(),
@@ -133,18 +193,44 @@ func resourceDatadogSecurityMonitoringDefaultRuleRead(ctx context.Context, d *sc
 
 	d.Set("filter", ruleFilters)
 
-	return nil
+	d.Set("type", rule.GetType())
+
+	responseOptions := rule.GetOptions()
+	var ruleOptions []map[string]interface{}
+
+	if *rule.Type == datadogV2.SECURITYMONITORINGRULETYPEREAD_LOG_DETECTION {
+		ruleOptions = append(ruleOptions, map[string]interface{}{
+			"decrease_criticality_based_on_env": responseOptions.GetDecreaseCriticalityBasedOnEnv(),
+		})
+	}
+
+	d.Set("options", &ruleOptions)
+
+	defaultTags := make(map[string]bool)
+	for _, defaultTag := range rule.GetDefaultTags() {
+		defaultTags[defaultTag] = true
+	}
+
+	customTags := []string{}
+	for _, tag := range rule.GetTags() {
+		if _, ok := defaultTags[tag]; !ok {
+			customTags = append(customTags, tag)
+		}
+	}
+
+	d.Set("custom_tags", customTags)
+
+	return securityMonitoringRuleDeprecationWarning(rule)
 }
 
 func resourceDatadogSecurityMonitoringDefaultRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	providerConf := meta.(*ProviderConfiguration)
-	datadogClientV2 := providerConf.DatadogClientV2
-	authV2 := providerConf.AuthV2
+	apiInstances := providerConf.DatadogApiInstances
+	auth := providerConf.Auth
 
 	ruleID := d.Id()
 
-	response, httpResponse, err := datadogClientV2.SecurityMonitoringApi.GetSecurityMonitoringRule(authV2, ruleID)
-
+	response, httpResponse, err := apiInstances.GetSecurityMonitoringApiV2().GetSecurityMonitoringRule(auth, ruleID)
 	if err != nil {
 		if httpResponse != nil && httpResponse.StatusCode == 404 {
 			return diag.FromErr(errors.New("default rule does not exist"))
@@ -156,26 +242,39 @@ func resourceDatadogSecurityMonitoringDefaultRuleUpdate(ctx context.Context, d *
 		return diag.FromErr(err)
 	}
 
-	if !response.GetIsDefault() {
+	rule := response.SecurityMonitoringStandardRuleResponse
+	if rule == nil {
+		return diag.Errorf("signal rule type is not currently supported")
+	}
+
+	if !rule.GetIsDefault() {
 		return diag.FromErr(errors.New("rule is not a default rule"))
 	}
 
-	ruleUpdate, shouldUpdate, err := buildSecMonDefaultRuleUpdatePayload(response, d)
+	ruleUpdate, shouldUpdate, err := buildSecMonDefaultRuleUpdatePayload(rule, d)
 
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
+	var diags diag.Diagnostics
+
 	if shouldUpdate {
-		if _, httpResponse, err := datadogClientV2.SecurityMonitoringApi.UpdateSecurityMonitoringRule(authV2, ruleID, *ruleUpdate); err != nil {
-			return utils.TranslateClientErrorDiag(err, httpResponse, "error updating security monitoring rule on resource creation")
+		ruleResponse, httpResponse, err := apiInstances.GetSecurityMonitoringApiV2().UpdateSecurityMonitoringRule(auth, ruleID, *ruleUpdate)
+
+		if err != nil {
+			diags = append(diags, utils.TranslateClientErrorDiag(err, httpResponse, "error updating security monitoring rule on resource creation")...)
 		}
+
+		diags = append(diags, securityMonitoringRuleDeprecationWarning(ruleResponse.SecurityMonitoringStandardRuleResponse)...)
+	} else {
+		diags = append(diags, securityMonitoringRuleDeprecationWarning(rule)...)
 	}
 
-	return nil
+	return diags
 }
 
-func buildSecMonDefaultRuleUpdatePayload(currentState datadogV2.SecurityMonitoringRuleResponse, d *schema.ResourceData) (*datadogV2.SecurityMonitoringRuleUpdatePayload, bool, error) {
+func buildSecMonDefaultRuleUpdatePayload(currentState *datadogV2.SecurityMonitoringStandardRuleResponse, d *schema.ResourceData) (*datadogV2.SecurityMonitoringRuleUpdatePayload, bool, error) {
 	payload := datadogV2.SecurityMonitoringRuleUpdatePayload{}
 
 	isEnabled := d.Get("enabled").(bool)
@@ -209,7 +308,7 @@ func buildSecMonDefaultRuleUpdatePayload(currentState datadogV2.SecurityMonitori
 
 			if !stringSliceEquals(tfNotifications, ruleCase.GetNotifications()) {
 				modifiedCases++
-				updatedRuleCase[i].Notifications = &tfNotifications
+				updatedRuleCase[i].Notifications = tfNotifications
 			}
 
 		} else {
@@ -220,7 +319,7 @@ func buildSecMonDefaultRuleUpdatePayload(currentState datadogV2.SecurityMonitori
 
 			if !stringSliceEquals(tfNotifications, ruleCase.GetNotifications()) {
 				modifiedCases++
-				updatedRuleCase[i].Notifications = &tfNotifications
+				updatedRuleCase[i].Notifications = tfNotifications
 			}
 		}
 
@@ -233,7 +332,7 @@ func buildSecMonDefaultRuleUpdatePayload(currentState datadogV2.SecurityMonitori
 	}
 
 	if modifiedCases > 0 {
-		payload.Cases = &updatedRuleCase
+		payload.Cases = updatedRuleCase
 	}
 
 	tfFilters := d.Get("filter").([]interface{})
@@ -254,9 +353,49 @@ func buildSecMonDefaultRuleUpdatePayload(currentState datadogV2.SecurityMonitori
 
 		payloadFilters[idx] = structRuleFilter
 	}
-	payload.Filters = &payloadFilters
+	payload.Filters = payloadFilters
+
+	payload.Options = buildDefaultRulePayloadOptions(d)
+
+	defaultTags := currentState.GetDefaultTags()
+	tags := make(map[string]bool)
+	for _, tag := range defaultTags {
+		tags[tag] = true
+	}
+
+	if v, ok := d.GetOk("custom_tags"); ok {
+		tfTags := v.(*schema.Set)
+		for _, value := range tfTags.List() {
+			customTag := value.(string)
+			tags[customTag] = true
+		}
+	}
+
+	payloadTags := make([]string, 0, len(tags))
+	for tag := range tags {
+		payloadTags = append(payloadTags, tag)
+	}
+
+	payload.SetTags(payloadTags)
 
 	return &payload, true, nil
+}
+
+func buildDefaultRulePayloadOptions(d *schema.ResourceData) *datadogV2.SecurityMonitoringRuleOptions {
+	tfOptions := extractMapFromInterface(d.Get("options").([]interface{}))
+
+	if len(tfOptions) == 0 {
+		return nil
+	}
+
+	payloadOptions := datadogV2.NewSecurityMonitoringRuleOptions()
+	ruleType := d.Get("type").(string)
+
+	if v, ok := tfOptions["decrease_criticality_based_on_env"]; ok && ruleType == string(datadogV2.SECURITYMONITORINGRULETYPECREATE_LOG_DETECTION) {
+		payloadOptions.SetDecreaseCriticalityBasedOnEnv(v.(bool))
+	}
+
+	return payloadOptions
 }
 
 func stringSliceEquals(left []string, right []string) bool {

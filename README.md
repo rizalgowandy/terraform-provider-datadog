@@ -1,10 +1,11 @@
 # Terraform Provider
 
+![Gitter](https://img.shields.io/gitter/room/DataDog/hashicorp-terraform)
+
 -   Website: https://www.terraform.io
--   [![Gitter chat](https://badges.gitter.im/hashicorp-terraform/Lobby.png)](https://gitter.im/hashicorp-terraform/Lobby)
 -   Mailing list: [Google Groups](http://groups.google.com/group/terraform-tool)
 
-<img src="https://cdn.rawgit.com/hashicorp/terraform-website/master/content/source/assets/images/logo-hashicorp.svg" width="600px">
+<img alt="Terraform" src="https://www.datocms-assets.com/2885/1629941242-logo-terraform-main.svg" width="600px">
 
 ## Requirements
 
@@ -30,6 +31,6 @@ $ make build
 
 ## Using the provider
 
-If you're building the provider, follow the instructions to [install it as a plugin.](https://www.terraform.io/docs/plugins/basics.html#installing-a-plugin) After placing it into your plugins directory, run `terraform init` to initialize it.
+If you're building the provider, follow the instructions to [install it as a plugin.](./DEVELOPMENT.md) After placing it into your plugins directory, run `terraform init` to initialize it.
 
 Further [usage documentation is available on the Terraform website](https://www.terraform.io/docs/providers/datadog/index.html).

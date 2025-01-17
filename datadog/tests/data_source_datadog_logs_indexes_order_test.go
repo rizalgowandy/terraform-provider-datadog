@@ -8,10 +8,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestAccDatadogLogsIndexesOrderDatasource(t *testing.T) {
+	t.Parallel()
 	if !isReplaying() {
 		// Skip in non replaying mode, since we can't delete indexes via the public API, plus the API takes a while to be consistent
 		// If you really need to record the interactions, comment the following return statement, and run locally.

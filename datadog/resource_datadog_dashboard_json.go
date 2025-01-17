@@ -8,7 +8,7 @@ import (
 	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -46,60 +46,67 @@ func resourceDatadogDashboardJSON() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
-		Schema: map[string]*schema.Schema{
-			"dashboard": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringIsJSON,
-				StateFunc: func(v interface{}) string {
-					attrMap, _ := structure.ExpandJsonFromString(v.(string))
-					prepResource(attrMap)
-					res, _ := structure.FlattenJsonToString(attrMap)
-					return res
+
+		SchemaFunc: func() map[string]*schema.Schema {
+			return map[string]*schema.Schema{
+				"dashboard": {
+					Type:         schema.TypeString,
+					Required:     true,
+					ValidateFunc: validation.StringIsJSON,
+					StateFunc: func(v interface{}) string {
+						attrMap, _ := structure.ExpandJsonFromString(v.(string))
+						prepResource(attrMap)
+						res, _ := structure.FlattenJsonToString(attrMap)
+						return res
+					},
+					Description: "The JSON formatted definition of the Dashboard.",
 				},
-				Description: "The JSON formatted definition of the Dashboard.",
-			},
-			"url": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "The URL of the dashboard.",
-			},
-			"dashboard_lists": {
-				Type:        schema.TypeSet,
-				Optional:    true,
-				Description: "The list of dashboard lists this dashboard belongs to.",
-				Elem:        &schema.Schema{Type: schema.TypeInt},
-			},
-			"dashboard_lists_removed": {
-				Type:        schema.TypeSet,
-				Computed:    true,
-				Description: "The list of dashboard lists this dashboard should be removed from. Internal only.",
-				Elem:        &schema.Schema{Type: schema.TypeInt},
-			},
+				"url": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Computed:    true,
+					Description: "The URL of the dashboard.",
+				},
+				"dashboard_lists": {
+					Type:        schema.TypeSet,
+					Optional:    true,
+					Description: "A list of dashboard lists this dashboard belongs to. This attribute should not be set if managing the corresponding dashboard lists using Terraform as it causes inconsistent behavior.",
+					Elem:        &schema.Schema{Type: schema.TypeInt},
+				},
+				"dashboard_lists_removed": {
+					Type:        schema.TypeSet,
+					Computed:    true,
+					Description: "The list of dashboard lists this dashboard should be removed from. Internal only.",
+					Elem:        &schema.Schema{Type: schema.TypeInt},
+				},
+			}
 		},
 	}
 }
 
 func deleteWidgetID(widgets []interface{}) {
 	for _, w := range widgets {
-		widget := w.(map[string]interface{})
-		def := widget["definition"].(map[string]interface{})
-		if def["type"] == "group" {
-			deleteWidgetID(def["widgets"].([]interface{}))
+		if widget, ok := w.(map[string]interface{}); ok {
+			if def, ok := widget["definition"].(map[string]interface{}); ok {
+				if def["type"] == "group" {
+					if group, ok := def["widgets"].([]interface{}); ok {
+						deleteWidgetID(group)
+					}
+				}
+				delete(widget, "id")
+			}
 		}
-		delete(widget, "id")
 	}
 }
 
 func resourceDatadogDashboardJSONRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	providerConf := meta.(*ProviderConfiguration)
-	datadogClientV1 := providerConf.DatadogClientV1
-	authV1 := providerConf.AuthV1
+	apiInstances := providerConf.DatadogApiInstances
+	auth := providerConf.Auth
 
 	id := d.Id()
 
-	respByte, httpResp, err := utils.SendRequest(authV1, datadogClientV1, "GET", path+"/"+id, nil)
+	respByte, httpResp, err := utils.SendRequest(auth, apiInstances.HttpClient, "GET", path+"/"+id, nil)
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == 404 {
 			d.SetId("")
@@ -118,12 +125,12 @@ func resourceDatadogDashboardJSONRead(ctx context.Context, d *schema.ResourceDat
 
 func resourceDatadogDashboardJSONCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	providerConf := meta.(*ProviderConfiguration)
-	datadogClientV1 := providerConf.DatadogClientV1
-	authV1 := providerConf.AuthV1
+	apiInstances := providerConf.DatadogApiInstances
+	auth := providerConf.Auth
 
 	dashboard := d.Get("dashboard").(string)
 
-	respByte, httpresp, err := utils.SendRequest(authV1, datadogClientV1, "POST", path, &dashboard)
+	respByte, httpresp, err := utils.SendRequest(auth, apiInstances.HttpClient, "POST", path, &dashboard)
 	if err != nil {
 		return utils.TranslateClientErrorDiag(err, httpresp, "error creating resource")
 	}
@@ -145,14 +152,14 @@ func resourceDatadogDashboardJSONCreate(ctx context.Context, d *schema.ResourceD
 	}
 
 	var httpResponse *http.Response
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
-		_, httpResponse, err = utils.SendRequest(authV1, datadogClientV1, "GET", path+"/"+id.(string), nil)
+	err = retry.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *retry.RetryError {
+		_, httpResponse, err = utils.SendRequest(auth, apiInstances.HttpClient, "GET", path+"/"+id.(string), nil)
 		if err != nil {
 			if httpResponse != nil && httpResponse.StatusCode == 404 {
-				return resource.RetryableError(fmt.Errorf("dashboard not created yet"))
+				return retry.RetryableError(fmt.Errorf("dashboard not created yet"))
 			}
 
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 
 		// We only log the error, as failing to update the list shouldn't fail dashboard creation
@@ -170,13 +177,13 @@ func resourceDatadogDashboardJSONCreate(ctx context.Context, d *schema.ResourceD
 
 func resourceDatadogDashboardJSONUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	providerConf := meta.(*ProviderConfiguration)
-	datadogClientV1 := providerConf.DatadogClientV1
-	authV1 := providerConf.AuthV1
+	apiInstances := providerConf.DatadogApiInstances
+	auth := providerConf.Auth
 
 	dashboard := d.Get("dashboard").(string)
 	id := d.Id()
 
-	respByte, httpresp, err := utils.SendRequest(authV1, datadogClientV1, "PUT", path+"/"+id, &dashboard)
+	respByte, httpresp, err := utils.SendRequest(auth, apiInstances.HttpClient, "PUT", path+"/"+id, &dashboard)
 	if err != nil {
 		return utils.TranslateClientErrorDiag(err, httpresp, "error updating dashboard")
 	}
@@ -199,12 +206,12 @@ func resourceDatadogDashboardJSONUpdate(ctx context.Context, d *schema.ResourceD
 
 func resourceDatadogDashboardJSONDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	providerConf := meta.(*ProviderConfiguration)
-	datadogClientV1 := providerConf.DatadogClientV1
-	authV1 := providerConf.AuthV1
+	apiInstances := providerConf.DatadogApiInstances
+	auth := providerConf.Auth
 
 	id := d.Id()
 
-	_, httpresp, err := utils.SendRequest(authV1, datadogClientV1, "DELETE", path+"/"+id, nil)
+	_, httpresp, err := utils.SendRequest(auth, apiInstances.HttpClient, "DELETE", path+"/"+id, nil)
 	if err != nil {
 		return utils.TranslateClientErrorDiag(err, httpresp, "error deleting dashboard")
 	}
@@ -233,6 +240,11 @@ func updateDashboardJSONState(d *schema.ResourceData, dashboard map[string]inter
 }
 
 func prepResource(attrMap map[string]interface{}) map[string]interface{} {
+	// This is an edge case where refresh might be called with an empty definition.
+	if attrMap == nil {
+		return attrMap
+	}
+
 	// Remove computed fields when comparing diffs
 	for _, f := range computedFields {
 		delete(attrMap, f)
@@ -244,6 +256,12 @@ func prepResource(attrMap map[string]interface{}) map[string]interface{} {
 	// 'restricted_roles' takes precedence over 'is_read_only'
 	if _, ok := attrMap["restricted_roles"].([]interface{}); ok {
 		delete(attrMap, "is_read_only")
+	} else {
+		// `is_read_only` defaults to false.
+		// We set it manually to avoid continous diff when not set.
+		if _, ok := attrMap["is_read_only"]; !ok {
+			attrMap["is_read_only"] = false
+		}
 	}
 	// handle `notify_list` order
 	if notifyList, ok := attrMap["notify_list"].([]interface{}); ok {

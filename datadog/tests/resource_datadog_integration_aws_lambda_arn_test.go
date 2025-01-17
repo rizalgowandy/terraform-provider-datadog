@@ -9,10 +9,9 @@ import (
 	"github.com/terraform-providers/terraform-provider-datadog/datadog"
 	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/utils"
 
-	datadogV1 "github.com/DataDog/datadog-api-client-go/api/v1/datadog"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 func testAccDatadogIntegrationAWSLambdaArnConfig(uniq string) string {
@@ -29,22 +28,25 @@ resource "datadog_integration_aws_lambda_arn" "main_collector" {
 }`, uniq, uniq)
 }
 
-func testAccDatadogIntegrationAWSLambdaArnConfigAccessKey(uniq string) string {
+func testAccDatadogIntegrationAWSLambdaArnConfigAccessKey(accountID string, accessKeyID string) string {
 	return fmt.Sprintf(`
 resource "datadog_integration_aws" "account" {
+  account_id        = "%s"
   access_key_id     = "%s"
   secret_access_key = "testacc-datadog-integration-secret"
 }
 
 resource "datadog_integration_aws_lambda_arn" "main_collector" {
-  account_id = datadog_integration_aws.account.access_key_id
+  account_id = datadog_integration_aws.account.account_id
   lambda_arn = "arn:aws:lambda:us-east-1:1234567890:function:datadog-forwarder-Forwarder"
   depends_on = [datadog_integration_aws.account]
-}`, uniq)
+}`, accountID, accessKeyID)
 }
 
 func TestAccDatadogIntegrationAWSLambdaArnAccessKey(t *testing.T) {
+	t.Parallel()
 	ctx, accProviders := testAccProviders(context.Background(), t)
+	accountID := uniqueAWSAccountID(ctx, t)
 	accessKeyID := uniqueAWSAccessKeyID(ctx, t)
 	accProvider := testAccProvider(t, accProviders)
 
@@ -54,12 +56,12 @@ func TestAccDatadogIntegrationAWSLambdaArnAccessKey(t *testing.T) {
 		CheckDestroy:      checkIntegrationAWSLambdaArnDestroy(accProvider),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatadogIntegrationAWSLambdaArnConfigAccessKey(accessKeyID),
+				Config: testAccDatadogIntegrationAWSLambdaArnConfigAccessKey(accountID, accessKeyID),
 				Check: resource.ComposeTestCheckFunc(
 					checkIntegrationAWSLambdaArnExists(accProvider),
 					resource.TestCheckResourceAttr(
 						"datadog_integration_aws_lambda_arn.main_collector",
-						"account_id", accessKeyID),
+						"account_id", accountID),
 					resource.TestCheckResourceAttr(
 						"datadog_integration_aws_lambda_arn.main_collector",
 						"lambda_arn", "arn:aws:lambda:us-east-1:1234567890:function:datadog-forwarder-Forwarder"),
@@ -70,6 +72,7 @@ func TestAccDatadogIntegrationAWSLambdaArnAccessKey(t *testing.T) {
 }
 
 func TestAccDatadogIntegrationAWSLambdaArn(t *testing.T) {
+	t.Parallel()
 	ctx, accProviders := testAccProviders(context.Background(), t)
 	accountID := uniqueAWSAccountID(ctx, t)
 	accProvider := testAccProvider(t, accProviders)
@@ -99,15 +102,15 @@ func checkIntegrationAWSLambdaArnExists(accProvider func() (*schema.Provider, er
 	return func(s *terraform.State) error {
 		provider, _ := accProvider()
 		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV1 := providerConf.DatadogClientV1
-		authV1 := providerConf.AuthV1
+		apiInstances := providerConf.DatadogApiInstances
+		auth := providerConf.Auth
 
-		return checkIntegrationAwsLambdaArnExistsHelper(authV1, s, datadogClientV1)
+		return checkIntegrationAwsLambdaArnExistsHelper(auth, s, apiInstances)
 	}
 }
 
-func checkIntegrationAwsLambdaArnExistsHelper(ctx context.Context, s *terraform.State, datadogClientV1 *datadogV1.APIClient) error {
-	logCollections, _, err := datadogClientV1.AWSLogsIntegrationApi.ListAWSLogsIntegrations(ctx)
+func checkIntegrationAwsLambdaArnExistsHelper(ctx context.Context, s *terraform.State, apiInstances *utils.ApiInstances) error {
+	logCollections, _, err := apiInstances.GetAWSLogsIntegrationApiV1().ListAWSLogsIntegrations(ctx)
 	if err != nil {
 		return err
 	}
@@ -133,15 +136,15 @@ func checkIntegrationAWSLambdaArnDestroy(accProvider func() (*schema.Provider, e
 	return func(s *terraform.State) error {
 		provider, _ := accProvider()
 		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV1 := providerConf.DatadogClientV1
-		authV1 := providerConf.AuthV1
+		apiInstances := providerConf.DatadogApiInstances
+		auth := providerConf.Auth
 
-		return checkIntegrationAWSLambdaArnDestroyHelper(authV1, s, datadogClientV1)
+		return checkIntegrationAWSLambdaArnDestroyHelper(auth, s, apiInstances)
 	}
 }
 
-func checkIntegrationAWSLambdaArnDestroyHelper(ctx context.Context, s *terraform.State, datadogClientV1 *datadogV1.APIClient) error {
-	logCollections, _, err := datadogClientV1.AWSLogsIntegrationApi.ListAWSLogsIntegrations(ctx)
+func checkIntegrationAWSLambdaArnDestroyHelper(ctx context.Context, s *terraform.State, apiInstances *utils.ApiInstances) error {
+	logCollections, _, err := apiInstances.GetAWSLogsIntegrationApiV1().ListAWSLogsIntegrations(ctx)
 	if err != nil {
 		return err
 	}

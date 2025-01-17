@@ -9,9 +9,9 @@ import (
 	"github.com/terraform-providers/terraform-provider-datadog/datadog"
 	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/utils"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 func datadogOrderedDashboardConfig(uniq string) string {
@@ -21,6 +21,7 @@ resource "datadog_dashboard" "ordered_dashboard" {
 	description   = "Created using the Datadog provider in Terraform"
 	layout_type   = "ordered"
 	is_read_only  = true
+	tags		  = ["team:foobar"]
 	widget {
 		alert_graph_definition {
 			alert_id = "895605"
@@ -456,6 +457,7 @@ resource "datadog_dashboard" "simple_dashboard" {
 	description   = "Created using the Datadog provider in Terraform"
 	layout_type   = "ordered"
 	is_read_only  = true
+	tags          = ["team:foobar"]
 	widget {
 		alert_graph_definition {
 			alert_id = "895605"
@@ -507,6 +509,7 @@ resource "datadog_dashboard" "free_dashboard" {
 	description   = "Created using the Datadog provider in Terraform"
 	layout_type   = "free"
 	is_read_only  = false
+	tags          = ["team:foobar"]
 	widget {
 		event_stream_definition {
 			query = "*"
@@ -684,6 +687,7 @@ resource "datadog_dashboard" "simple_dashboard" {
 	description   = "Created using the Datadog provider in Terraform"
 	layout_type   = "free"
 	is_read_only  = true
+	tags          = ["team:foobar"]
 	widget {
 		alert_graph_definition {
 			alert_id = "895605"
@@ -740,6 +744,8 @@ var datadogSimpleOrderedDashboardAsserts = []string{
 	"layout_type = ordered",
 	"is_read_only = true",
 	"widget.# = 1",
+	"tags.# = 1",
+	"tags.0 = team:foobar",
 	// Alert Graph widget
 	"widget.0.alert_graph_definition.0.alert_id = 895605",
 	"widget.0.alert_graph_definition.0.viz_type = timeseries",
@@ -773,6 +779,8 @@ var datadogSimpleFreeDashboardAsserts = []string{
 	"layout_type = free",
 	"is_read_only = true",
 	"widget.# = 1",
+	"tags.# = 1",
+	"tags.0 = team:foobar",
 	// Alert Graph widget
 	"widget.0.alert_graph_definition.0.alert_id = 895605",
 	"widget.0.alert_graph_definition.0.viz_type = timeseries",
@@ -809,6 +817,8 @@ var datadogOrderedDashboardAsserts = []string{
 	"description = Created using the Datadog provider in Terraform",
 	"layout_type = ordered",
 	"is_read_only = true",
+	"tags.# = 1",
+	"tags.0 = team:foobar",
 	"widget.# = 16",
 	// Alert Graph widget
 	"widget.0.alert_graph_definition.0.alert_id = 895605",
@@ -1072,6 +1082,8 @@ var datadogFreeDashboardAsserts = []string{
 	"description = Created using the Datadog provider in Terraform",
 	"layout_type = free",
 	"is_read_only = false",
+	"tags.# = 1",
+	"tags.0 = team:foobar",
 	"widget.# = 8",
 
 	// Event Stream widget
@@ -1141,6 +1153,7 @@ var datadogFreeDashboardAsserts = []string{
 	"widget.6.manage_status_definition.0.title = Widget Title",
 	"widget.6.manage_status_definition.0.title_align = left",
 	"widget.6.manage_status_definition.0.title_size = 16",
+	"widget.6.manage_status_definition.0.show_priority = false",
 	"widget.6.widget_layout.0.height = 40",
 	"widget.6.widget_layout.0.width = 30",
 	"widget.6.widget_layout.0.x = 112",
@@ -1301,14 +1314,14 @@ func checkDashboardExists(accProvider func() (*schema.Provider, error)) resource
 	return func(s *terraform.State) error {
 		provider, _ := accProvider()
 		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV1 := providerConf.DatadogClientV1
-		authV1 := providerConf.AuthV1
+		apiInstances := providerConf.DatadogApiInstances
+		auth := providerConf.Auth
 
 		for _, r := range s.RootModule().Resources {
 			if r.Type != "datadog_dashboard" && r.Type != "datadog_dashboard_json" {
 				continue
 			}
-			if _, _, err := datadogClientV1.DashboardsApi.GetDashboard(authV1, r.Primary.ID); err != nil {
+			if _, _, err := apiInstances.GetDashboardsApiV1().GetDashboard(auth, r.Primary.ID); err != nil {
 				return fmt.Errorf("received an error retrieving dashboard1 %s", err)
 			}
 		}
@@ -1320,15 +1333,15 @@ func checkDashboardDestroy(accProvider func() (*schema.Provider, error)) resourc
 	return func(s *terraform.State) error {
 		provider, _ := accProvider()
 		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV1 := providerConf.DatadogClientV1
-		authV1 := providerConf.AuthV1
+		apiInstances := providerConf.DatadogApiInstances
+		auth := providerConf.Auth
 
 		err := utils.Retry(2, 10, func() error {
 			for _, r := range s.RootModule().Resources {
 				if r.Type != "datadog_dashboard" && r.Type != "datadog_dashboard_json" {
 					continue
 				}
-				if _, httpResp, err := datadogClientV1.DashboardsApi.GetDashboard(authV1, r.Primary.ID); err != nil {
+				if _, httpResp, err := apiInstances.GetDashboardsApiV1().GetDashboard(auth, r.Primary.ID); err != nil {
 					if httpResp != nil && httpResp.StatusCode == 404 {
 						return nil
 					}
@@ -1801,4 +1814,105 @@ func TestAccDatadogDashboardNotifyListDiff(t *testing.T) {
 			},
 		},
 	})
+}
+
+func datadogDashboardTemplateVariablesConfig(uniqueDashboardName string) string {
+	return fmt.Sprintf(`
+resource "datadog_dashboard" "ordered_dashboard" {
+  title        = "%s"
+  description  = "Created using the Datadog provider in Terraform"
+  layout_type  = "ordered"
+  is_read_only = true
+
+  template_variable {
+    name    = "var_1"
+    prefix  = "host"
+    defaults = ["foo", "bar"]
+  }
+
+  template_variable {
+    name    = "var_2"
+    prefix  = "service_name"
+    defaults = ["autoscaling", "two"]
+  }
+
+  template_variable_preset {
+    name = "preset_1"
+    template_variable {
+      name  = "var_1"
+      values = ["host.dc"]
+    }
+  }
+
+  template_variable_preset {
+    name = "preset_2"
+    template_variable {
+      name  = "var_2"
+      values = ["host.dc", "foo"]
+    }
+    template_variable {
+      name  = "var_3"
+      values = ["my_service"]
+    }
+  }
+
+  widget {
+    note_definition {
+      content          = "note text"
+      background_color = "pink"
+      font_size        = "14"
+      text_align       = "center"
+      show_tick        = true
+      tick_edge        = "left"
+      tick_pos         = "50%%"
+    }
+  }
+}`, uniqueDashboardName)
+}
+
+var datadogDashboardTemplateVariablesConfigAsserts = []string{
+	"template_variable.# = 2",
+	"template_variable.0.name = var_1",
+	"template_variable.0.prefix = host",
+	"template_variable.0.defaults.# = 2",
+	"template_variable.0.defaults.0 = foo",
+	"template_variable.0.defaults.1 = bar",
+	"template_variable.1.name = var_2",
+	"template_variable.1.prefix = service_name",
+	"template_variable.1.defaults.# = 2",
+	"template_variable.1.defaults.0 = autoscaling",
+	"template_variable.1.defaults.1 = two",
+	"template_variable_preset.0.template_variable.# = 1",
+	"template_variable_preset.0.name = preset_1",
+	"template_variable_preset.0.template_variable.0.name = var_1",
+	"template_variable_preset.0.template_variable.0.values.0 = host.dc",
+	"template_variable_preset.1.template_variable.# = 2",
+	"template_variable_preset.1.name = preset_2",
+	"template_variable_preset.1.template_variable.0.name = var_2",
+	"template_variable_preset.1.template_variable.0.values.# = 2",
+	"template_variable_preset.1.template_variable.0.values.0 = host.dc",
+	"template_variable_preset.1.template_variable.0.values.1 = foo",
+	"template_variable_preset.1.template_variable.1.name = var_3",
+	"template_variable_preset.1.template_variable.1.values.0 = my_service",
+}
+
+func TestAccDatadogDashboardTemplateVariables(t *testing.T) {
+	t.Parallel()
+	ctx, accProviders := testAccProviders(context.Background(), t)
+	boardName := uniqueEntityName(ctx, t)
+	asserts := datadogDashboardTemplateVariablesConfigAsserts
+	accProvider := testAccProvider(t, accProviders)
+	checks := testCheckResourceAttrs("datadog_dashboard.ordered_dashboard", checkDashboardExists(accProvider), asserts)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: accProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: datadogDashboardTemplateVariablesConfig(boardName),
+				Check:  resource.ComposeTestCheckFunc(checks...),
+			},
+		},
+	})
+
 }

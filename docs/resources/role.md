@@ -33,27 +33,30 @@ resource "datadog_role" "foo" {
 
 ### Required
 
-- **name** (String) Name of the role.
+- `name` (String) Name of the role.
 
 ### Optional
 
-- **permission** (Block Set) Set of objects containing the permission ID and the name of the permissions granted to this role. (see [below for nested schema](#nestedblock--permission))
+<!-- keep `default_permissions_opt_out` hidden until feature is released -->
+<!-- - `default_permissions_opt_out` (Boolean) If set to `true`, the role does not have default (restricted) permissions unless they are explicitly set. The `include_restricted` attribute for the `datadog_permissions` data source must be set to `true` to manage default permissions in Terraform. -->
+- `permission` (Block Set) Set of objects containing the permission ID and the name of the permissions granted to this role. (see [below for nested schema](#nestedblock--permission))
+- `validate` (Boolean) If set to `false`, skip the validation call done during plan.
 
 ### Read-Only
 
-- **id** (String) The ID of this resource.
-- **user_count** (Number) Number of users that have this role.
+- `id` (String) The ID of this resource.
+- `user_count` (Number) Number of users that have this role.
 
 <a id="nestedblock--permission"></a>
 ### Nested Schema for `permission`
 
 Required:
 
-- **id** (String) ID of the permission to assign.
+- `id` (String) ID of the permission to assign.
 
 Read-Only:
 
-- **name** (String) Name of the permission.
+- `name` (String) Name of the permission.
 
 ## Import
 

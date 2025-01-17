@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/terraform-providers/terraform-provider-datadog/datadog"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
+	"github.com/terraform-providers/terraform-provider-datadog/datadog"
 )
 
 const tfSecurityFilterName = "datadog_security_monitoring_filter.acceptance_test"
@@ -41,7 +41,7 @@ func testAccCheckDatadogSecurityMonitoringFilterCreated(name string) string {
 	return fmt.Sprintf(`
 resource "datadog_security_monitoring_filter" "acceptance_test" {
     name = "%s"
-    query = "first query"
+    query = "first query - %[1]s"
     is_enabled = true
 
     exclusion_filter {
@@ -63,7 +63,7 @@ func testAccCheckDatadogSecurityMonitorFilterCreatedCheck(accProvider func() (*s
 		resource.TestCheckResourceAttr(
 			tfSecurityFilterName, "name", filterName),
 		resource.TestCheckResourceAttr(
-			tfSecurityFilterName, "query", "first query"),
+			tfSecurityFilterName, "query", "first query - "+filterName),
 		resource.TestCheckResourceAttr(
 			tfSecurityFilterName, "is_enabled", "true"),
 		resource.TestCheckResourceAttr(
@@ -83,7 +83,7 @@ func testAccCheckDatadogSecurityMonitoringFilterUpdated(name string) string {
 	return fmt.Sprintf(`
 resource "datadog_security_monitoring_filter" "acceptance_test" {
     name = "%s"
-    query = "new query"
+    query = "new query - %[1]s"
     is_enabled = false
 
     exclusion_filter {
@@ -105,7 +105,7 @@ func testAccCheckDatadogSecurityMonitorFilterUpdatedCheck(accProvider func() (*s
 		resource.TestCheckResourceAttr(
 			tfSecurityFilterName, "name", filterName),
 		resource.TestCheckResourceAttr(
-			tfSecurityFilterName, "query", "new query"),
+			tfSecurityFilterName, "query", "new query - "+filterName),
 		resource.TestCheckResourceAttr(
 			tfSecurityFilterName, "is_enabled", "false"),
 		resource.TestCheckResourceAttr(
@@ -125,11 +125,11 @@ func testAccCheckDatadogSecurityMonitoringFilterExists(accProvider func() (*sche
 	return func(s *terraform.State) error {
 		provider, _ := accProvider()
 		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		authV2 := providerConf.AuthV2
-		client := providerConf.DatadogClientV2
+		auth := providerConf.Auth
+		apiInstances := providerConf.DatadogApiInstances
 
 		for _, filter := range s.RootModule().Resources {
-			_, _, err := client.SecurityMonitoringApi.GetSecurityFilter(authV2, filter.Primary.ID)
+			_, _, err := apiInstances.GetSecurityMonitoringApiV2().GetSecurityFilter(auth, filter.Primary.ID)
 			if err != nil {
 				return fmt.Errorf("received an error retrieving security monitoring filter: %s", err)
 			}
@@ -142,19 +142,19 @@ func testAccCheckDatadogSecurityMonitoringFilterDestroy(accProvider func() (*sch
 	return func(s *terraform.State) error {
 		provider, _ := accProvider()
 		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		authV2 := providerConf.AuthV2
-		client := providerConf.DatadogClientV2
+		auth := providerConf.Auth
+		apiInstances := providerConf.DatadogApiInstances
 
 		for _, resource := range s.RootModule().Resources {
 			if resource.Type == "datadog_security_monitoring_filter" {
-				_, httpResponse, err := client.SecurityMonitoringApi.GetSecurityFilter(authV2, resource.Primary.ID)
+				_, httpResponse, err := apiInstances.GetSecurityMonitoringApiV2().GetSecurityFilter(auth, resource.Primary.ID)
 				if err != nil {
 					if httpResponse != nil && httpResponse.StatusCode == 404 {
 						continue
 					}
 					return fmt.Errorf("received an error deleting security monitoring filter: %s", err)
 				}
-				return fmt.Errorf("monitor still exists")
+				return fmt.Errorf("security monitoring filter still exists")
 			}
 		}
 		return nil

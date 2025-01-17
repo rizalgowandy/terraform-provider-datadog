@@ -10,9 +10,9 @@ import (
 	"github.com/terraform-providers/terraform-provider-datadog/datadog"
 	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/utils"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 func TestAccDatadogRole_CreateUpdate(t *testing.T) {
@@ -30,7 +30,6 @@ func TestAccDatadogRole_CreateUpdate(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDatadogRoleExists(accProvider, "datadog_role.foo"),
 					resource.TestCheckResourceAttr("datadog_role.foo", "name", rolename),
-					resource.TestCheckResourceAttr("datadog_role.foo", "permission.#", "2"),
 					testCheckRolePermission(
 						"datadog_role.foo",
 						"data.datadog_permissions.foo",
@@ -43,26 +42,57 @@ func TestAccDatadogRole_CreateUpdate(t *testing.T) {
 					),
 				),
 			},
+			// {
+			// 	Config: testAccCheckDatadogRoleConfigUpdated(rolename),
+			// 	Check: resource.ComposeTestCheckFunc(
+			// 		testAccCheckDatadogRoleExists(accProvider, "datadog_role.foo"),
+			// 		resource.TestCheckResourceAttr("datadog_role.foo", "name", rolename),
+			// 		testCheckRolePermission(
+			// 			"datadog_role.foo",
+			// 			"data.datadog_permissions.foo",
+			// 			"permissions.logs_read_index_data",
+			// 		),
+			// 		testCheckRolePermission(
+			// 			"datadog_role.foo",
+			// 			"data.datadog_permissions.foo",
+			// 			"permissions.standard",
+			// 		),
+			// 	),
+			// },
 			{
-				Config: testAccCheckDatadogRoleConfigUpdated(rolename),
+				Config: testAccCheckDatadogRoleConfigNoUnrestrictedPerm(rolename),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDatadogRoleExists(accProvider, "datadog_role.foo"),
-					resource.TestCheckResourceAttr("datadog_role.foo", "name", rolename+"updated"),
-					resource.TestCheckResourceAttr("datadog_role.foo", "permission.#", "2"),
+					resource.TestCheckResourceAttr("datadog_role.foo", "permission.#", "0"),
+				),
+			},
+		},
+	})
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: accProviders,
+		CheckDestroy:      testAccCheckDatadogRoleDestroy(accProvider),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckDatadogRoleWithRestrictedPermsConfig(rolename),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDatadogRoleExists(accProvider, "datadog_role.foo"),
+					resource.TestCheckResourceAttr("datadog_role.foo", "name", rolename),
 					testCheckRolePermission(
 						"datadog_role.foo",
 						"data.datadog_permissions.foo",
-						"permissions.logs_read_index_data",
+						"permissions.dashboards_read",
 					),
 					testCheckRolePermission(
 						"datadog_role.foo",
 						"data.datadog_permissions.foo",
-						"permissions.standard",
+						"permissions.monitors_read",
 					),
 				),
 			},
 			{
-				Config: testAccCheckDatadogRoleConfigNoPerm(rolename),
+				Config: testAccCheckDatadogRoleConfigNoRestrictedPerm(rolename),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDatadogRoleExists(accProvider, "datadog_role.foo"),
 					resource.TestCheckResourceAttr("datadog_role.foo", "permission.#", "0"),
@@ -71,6 +101,7 @@ func TestAccDatadogRole_CreateUpdate(t *testing.T) {
 		},
 	})
 }
+
 func TestAccDatadogRole_InvalidPerm(t *testing.T) {
 	ctx, accProviders := testAccProviders(context.Background(), t)
 	rolename := strings.ToLower(uniqueEntityName(ctx, t))
@@ -80,8 +111,12 @@ func TestAccDatadogRole_InvalidPerm(t *testing.T) {
 		ProviderFactories: accProviders,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccCheckDatadogRoleConfigRestrictedPerm(rolename),
-				ExpectError: regexp.MustCompile("permission with ID .* is restricted .* or does not exist"),
+				Config:      testAccCheckDatadogRoleConfigInvalidNonexistentPerm(rolename),
+				ExpectError: regexp.MustCompile("permission with ID .* does not exist"),
+			},
+			{
+				Config:      testAccCheckDatadogRoleConfigInvalidRestrictedPerm(rolename),
+				ExpectError: regexp.MustCompile("permission with ID .* is a restricted"),
 			},
 		},
 	})
@@ -102,15 +137,15 @@ func testAccCheckDatadogRoleDestroy(accProvider func() (*schema.Provider, error)
 	return func(s *terraform.State) error {
 		provider, _ := accProvider()
 		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		client := providerConf.DatadogClientV2
-		auth := providerConf.AuthV2
+		apiInstances := providerConf.DatadogApiInstances
+		auth := providerConf.Auth
 
 		for _, r := range s.RootModule().Resources {
 			if r.Type != "datadog_role" {
 				// Only care about roles
 				continue
 			}
-			_, httpresp, err := client.RolesApi.GetRole(auth, r.Primary.ID)
+			_, httpresp, err := apiInstances.GetRolesApiV2().GetRole(auth, r.Primary.ID)
 			if err != nil {
 				if !(httpresp != nil && httpresp.StatusCode == 404) {
 					return utils.TranslateClientError(err, httpresp, "error getting role")
@@ -128,11 +163,11 @@ func testAccCheckDatadogRoleExists(accProvider func() (*schema.Provider, error),
 	return func(s *terraform.State) error {
 		provider, _ := accProvider()
 		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		client := providerConf.DatadogClientV2
-		auth := providerConf.AuthV2
+		apiInstances := providerConf.DatadogApiInstances
+		auth := providerConf.Auth
 
 		id := s.RootModule().Resources[rolename].Primary.ID
-		_, httpresp, err := client.RolesApi.GetRole(auth, id)
+		_, httpresp, err := apiInstances.GetRolesApiV2().GetRole(auth, id)
 		if err != nil {
 			return utils.TranslateClientError(err, httpresp, "error checking role existence")
 		}
@@ -152,6 +187,27 @@ resource "datadog_role" "foo" {
   permission {
     id = "${data.datadog_permissions.foo.permissions.admin}"
   }
+  permission {
+    id = "${data.datadog_permissions.foo.permissions.org_management}"
+  }
+}`, uniq)
+}
+
+func testAccCheckDatadogRoleWithRestrictedPermsConfig(uniq string) string {
+	return fmt.Sprintf(`
+data "datadog_permissions" foo {
+  include_restricted = true
+}
+
+resource "datadog_role" "foo" {
+  name      = "%s"
+  permission {
+    id = "${data.datadog_permissions.foo.permissions.dashboards_read}"
+  }
+  permission {
+    id = "${data.datadog_permissions.foo.permissions.monitors_read}"
+  }
+  default_permissions_opt_out = true
 }`, uniq)
 }
 
@@ -160,7 +216,7 @@ func testAccCheckDatadogRoleConfigUpdated(uniq string) string {
 data "datadog_permissions" foo {}
 
 resource "datadog_role" "foo" {
-  name      = "%supdated"
+  name      = "%s"
   permission {
     id = "${data.datadog_permissions.foo.permissions.logs_read_index_data}"
   }
@@ -170,21 +226,45 @@ resource "datadog_role" "foo" {
 }`, uniq)
 }
 
-func testAccCheckDatadogRoleConfigNoPerm(uniq string) string {
+func testAccCheckDatadogRoleConfigNoUnrestrictedPerm(uniq string) string {
 	return fmt.Sprintf(`
 data "datadog_permissions" foo {}
 
 resource "datadog_role" "foo" {
-  name      = "%snoperm"
+  name      = "%s"
 }`, uniq)
 }
 
-func testAccCheckDatadogRoleConfigRestrictedPerm(uniq string) string {
+func testAccCheckDatadogRoleConfigNoRestrictedPerm(uniq string) string {
+	return fmt.Sprintf(`
+data "datadog_permissions" foo {}
+
+resource "datadog_role" "foo" {
+  name      = "%s"
+  default_permissions_opt_out = true
+}`, uniq)
+}
+
+func testAccCheckDatadogRoleConfigInvalidNonexistentPerm(uniq string) string {
 	return fmt.Sprintf(`
 resource "datadog_role" "foo" {
   name      = "%sinvalid"
   permission {
     id = "invalid-id"
+  }
+}`, uniq)
+}
+
+func testAccCheckDatadogRoleConfigInvalidRestrictedPerm(uniq string) string {
+	return fmt.Sprintf(`
+data "datadog_permissions" foo {
+  include_restricted = true
+}
+
+resource "datadog_role" "foo" {
+  name      = "%s invalid restricted"
+  permission {
+    id = "${data.datadog_permissions.foo.permissions.dashboards_read}"
   }
 }`, uniq)
 }

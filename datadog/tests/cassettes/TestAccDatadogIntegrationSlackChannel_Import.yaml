@@ -1,5 +1,4 @@
----
-version: 1
+version: 2
 interactions:
 - request:
     body: ""
@@ -7,12 +6,9 @@ interactions:
     headers:
       Accept:
       - application/json
-      Dd-Operation-Id:
-      - GetIPRanges
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.4.4; terraform-cli 0.14.7) datadog-api-client-go/1.0.0-beta.19 (go go1.16.3; os darwin; arch amd64)
     url: https://ip-ranges.datadoghq.com/
     method: GET
+    id: 0
   response:
     body: |
       {
@@ -419,43 +415,28 @@ interactions:
           }
       }
     headers:
-      Connection:
-      - keep-alive
       Content-Type:
       - application/json
-      Date:
-      - Tue, 20 Apr 2021 15:57:17 GMT
       Etag:
       - W/"ecb4ed42838b56fe91b86d372e2f1b0e"
       Last-Modified:
       - Fri, 02 Apr 2021 15:14:33 GMT
       Server:
       - AmazonS3
-      Vary:
-      - Accept-Encoding
       Via:
       - 1.1 a74c33aabb438b6226856fa442878fa2.cloudfront.net (CloudFront)
-      X-Amz-Cf-Id:
-      - gdDudUkocrV0KsOAlDOP1-Wny4jr0epBiVSez3sr6EBTzgRN0F4hSw==
-      X-Amz-Cf-Pop:
-      - EWR53-C1
-      X-Cache:
-      - RefreshHit from cloudfront
     status: 200 OK
     code: 200
-    duration: ""
+    duration: "0ms"
 - request:
     body: ""
     form: {}
     headers:
       Accept:
       - application/json
-      Dd-Operation-Id:
-      - GetIPRanges
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.4.4; terraform-cli 0.14.7) datadog-api-client-go/1.0.0-beta.19 (go go1.16.3; os darwin; arch amd64)
     url: https://ip-ranges.datadoghq.com/
     method: GET
+    id: 1
   response:
     body: |
       {
@@ -864,77 +845,45 @@ interactions:
     headers:
       Age:
       - "1"
-      Connection:
-      - keep-alive
       Content-Type:
       - application/json
-      Date:
-      - Tue, 20 Apr 2021 15:57:17 GMT
       Etag:
       - W/"ecb4ed42838b56fe91b86d372e2f1b0e"
       Last-Modified:
       - Fri, 02 Apr 2021 15:14:33 GMT
       Server:
       - AmazonS3
-      Vary:
-      - Accept-Encoding
       Via:
       - 1.1 a74c33aabb438b6226856fa442878fa2.cloudfront.net (CloudFront)
-      X-Amz-Cf-Id:
-      - fwbq427eFf1j_rsIsSwO2U_uVbMccUT6r4QiIpWTe48cortaVXEH9g==
-      X-Amz-Cf-Pop:
-      - EWR53-C1
-      X-Cache:
-      - Hit from cloudfront
     status: 200 OK
     code: 200
-    duration: ""
+    duration: "0ms"
 - request:
     body: '{"service_hooks":[{"account":"test_account","url":"https://ddog-client-test.slack.com/fake-account-hook"}]}'
     form: {}
     headers:
       Content-Type:
       - application/json
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.4.4; terraform-cli 0.14.7) datadog-api-client-go/go-datadog-api (go go1.16.3; os darwin; arch amd64)
     url: https://api.datadoghq.com/api/v1/integration/slack
     method: POST
+    id: 2
   response:
     body: ""
     headers:
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
       Content-Type:
       - text/plain
-      Date:
-      - Tue, 20 Apr 2021 15:57:18 GMT
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Dd-Debug:
-      - nLnnBNvlCFDECRnZvzDb0z4sAO35G+IMidcAs8vrCKyjvsKWE8Yd9S3n6OjZ1qRN
-      X-Dd-Version:
-      - "35.4352700"
-      X-Frame-Options:
-      - SAMEORIGIN
     status: 204 No Content
     code: 204
-    duration: ""
+    duration: "0ms"
 - request:
     body: ""
     form: {}
     headers:
       Accept:
       - application/json
-      Dd-Operation-Id:
-      - GetIPRanges
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.4.4; terraform-cli 0.14.7) datadog-api-client-go/1.0.0-beta.19 (go go1.16.3; os darwin; arch amd64)
     url: https://ip-ranges.datadoghq.com/
     method: GET
+    id: 3
   response:
     body: |
       {
@@ -1343,43 +1292,28 @@ interactions:
     headers:
       Age:
       - "2"
-      Connection:
-      - keep-alive
       Content-Type:
       - application/json
-      Date:
-      - Tue, 20 Apr 2021 15:57:17 GMT
       Etag:
       - W/"ecb4ed42838b56fe91b86d372e2f1b0e"
       Last-Modified:
       - Fri, 02 Apr 2021 15:14:33 GMT
       Server:
       - AmazonS3
-      Vary:
-      - Accept-Encoding
       Via:
       - 1.1 a74c33aabb438b6226856fa442878fa2.cloudfront.net (CloudFront)
-      X-Amz-Cf-Id:
-      - X_8kXKfmBYXcXkvMafGbz0z3Pja1zHPfH7KIFHfxd2BGSyTSuAIQfA==
-      X-Amz-Cf-Pop:
-      - EWR53-C1
-      X-Cache:
-      - Hit from cloudfront
     status: 200 OK
     code: 200
-    duration: ""
+    duration: "0ms"
 - request:
     body: ""
     form: {}
     headers:
       Accept:
       - application/json
-      Dd-Operation-Id:
-      - GetIPRanges
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.4.4; terraform-cli 0.14.7) datadog-api-client-go/1.0.0-beta.19 (go go1.16.3; os darwin; arch amd64)
     url: https://ip-ranges.datadoghq.com/
     method: GET
+    id: 4
   response:
     body: |
       {
@@ -1788,43 +1722,28 @@ interactions:
     headers:
       Age:
       - "2"
-      Connection:
-      - keep-alive
       Content-Type:
       - application/json
-      Date:
-      - Tue, 20 Apr 2021 15:57:17 GMT
       Etag:
       - W/"ecb4ed42838b56fe91b86d372e2f1b0e"
       Last-Modified:
       - Fri, 02 Apr 2021 15:14:33 GMT
       Server:
       - AmazonS3
-      Vary:
-      - Accept-Encoding
       Via:
       - 1.1 a74c33aabb438b6226856fa442878fa2.cloudfront.net (CloudFront)
-      X-Amz-Cf-Id:
-      - LQNf_pTqgthxIehNQcaaxetg8Gdr-VjcDyL7sqA-P220qWW-tvGnZQ==
-      X-Amz-Cf-Pop:
-      - EWR53-C1
-      X-Cache:
-      - Hit from cloudfront
     status: 200 OK
     code: 200
-    duration: ""
+    duration: "0ms"
 - request:
     body: ""
     form: {}
     headers:
       Accept:
       - application/json
-      Dd-Operation-Id:
-      - GetIPRanges
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.4.4; terraform-cli 0.14.7) datadog-api-client-go/1.0.0-beta.19 (go go1.16.3; os darwin; arch amd64)
     url: https://ip-ranges.datadoghq.com/
     method: GET
+    id: 5
   response:
     body: |
       {
@@ -2233,31 +2152,19 @@ interactions:
     headers:
       Age:
       - "2"
-      Connection:
-      - keep-alive
       Content-Type:
       - application/json
-      Date:
-      - Tue, 20 Apr 2021 15:57:17 GMT
       Etag:
       - W/"ecb4ed42838b56fe91b86d372e2f1b0e"
       Last-Modified:
       - Fri, 02 Apr 2021 15:14:33 GMT
       Server:
       - AmazonS3
-      Vary:
-      - Accept-Encoding
       Via:
       - 1.1 a74c33aabb438b6226856fa442878fa2.cloudfront.net (CloudFront)
-      X-Amz-Cf-Id:
-      - cdC50BRESt-9urEanVdC5nx3FZcyjvFJfUMeAYUROlS0xQIEbch-AQ==
-      X-Amz-Cf-Pop:
-      - EWR53-C1
-      X-Cache:
-      - Hit from cloudfront
     status: 200 OK
     code: 200
-    duration: ""
+    duration: "0ms"
 - request:
     body: |
       {"display":{"message":true,"notified":true,"snapshot":true,"tags":true},"name":"#tfTestAccDatadogIntegrationSlackChannelImportlocal1618934236"}
@@ -2267,163 +2174,63 @@ interactions:
       - application/json
       Content-Type:
       - application/json
-      Dd-Operation-Id:
-      - CreateSlackIntegrationChannel
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.4.4; terraform-cli 0.14.7) datadog-api-client-go/1.0.0-beta.19 (go go1.16.3; os darwin; arch amd64)
     url: https://api.datadoghq.com/api/v1/integration/slack/configuration/accounts/test_account/channels
     method: POST
+    id: 6
   response:
     body: '{"name":"#tfTestAccDatadogIntegrationSlackChannelImportlocal1618934236","display":{"notified":true,"message":true,"snapshot":true,"tags":true}}'
     headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "143"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
       Content-Type:
       - application/json
-      Date:
-      - Tue, 20 Apr 2021 15:57:19 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Dd-Debug:
-      - S1wfaMZOKGT/IoMw6fqAwAwGWo2vQ44sjF3YzuETnQfxZO2T5eJbs0aX3UKb9Dwu
-      X-Dd-Version:
-      - "35.4352700"
-      X-Frame-Options:
-      - SAMEORIGIN
     status: 201 Created
     code: 201
-    duration: ""
+    duration: "0ms"
 - request:
     body: ""
     form: {}
     headers:
       Accept:
       - application/json
-      Dd-Operation-Id:
-      - GetSlackIntegrationChannel
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.4.4; terraform-cli 0.14.7) datadog-api-client-go/1.0.0-beta.19 (go go1.16.3; os darwin; arch amd64)
     url: https://api.datadoghq.com/api/v1/integration/slack/configuration/accounts/test_account/channels/%23tfTestAccDatadogIntegrationSlackChannelImportlocal1618934236
     method: GET
+    id: 7
   response:
     body: '{"name":"#tfTestAccDatadogIntegrationSlackChannelImportlocal1618934236","display":{"notified":true,"message":true,"snapshot":true,"tags":true}}'
     headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
       Content-Type:
       - application/json
-      Date:
-      - Tue, 20 Apr 2021 15:57:20 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Dd-Debug:
-      - S1wfaMZOKGT/IoMw6fqAwAwGWo2vQ44sjF3YzuETnQfxZO2T5eJbs0aX3UKb9Dwu
-      X-Dd-Version:
-      - "35.4352700"
-      X-Frame-Options:
-      - SAMEORIGIN
     status: 200 OK
     code: 200
-    duration: ""
+    duration: "0ms"
 - request:
     body: ""
     form: {}
     headers:
       Accept:
       - application/json
-      Dd-Operation-Id:
-      - GetSlackIntegrationChannel
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.4.4; terraform-cli 0.14.7) datadog-api-client-go/1.0.0-beta.19 (go go1.16.3; os darwin; arch amd64)
     url: https://api.datadoghq.com/api/v1/integration/slack/configuration/accounts/test_account/channels/%23tfTestAccDatadogIntegrationSlackChannelImportlocal1618934236
     method: GET
+    id: 8
   response:
     body: '{"name":"#tfTestAccDatadogIntegrationSlackChannelImportlocal1618934236","display":{"notified":true,"message":true,"snapshot":true,"tags":true}}'
     headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
       Content-Type:
       - application/json
-      Date:
-      - Tue, 20 Apr 2021 15:57:20 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Dd-Debug:
-      - Um4CoU685QqAscnxhS5BD+goWu2yX1Jd4zCfGzSsEvPPIm1qURZaF8dlLl/OEY4I
-      X-Dd-Version:
-      - "35.4352700"
-      X-Frame-Options:
-      - SAMEORIGIN
     status: 200 OK
     code: 200
-    duration: ""
+    duration: "0ms"
 - request:
     body: ""
     form: {}
     headers:
       Accept:
       - application/json
-      Dd-Operation-Id:
-      - RemoveSlackIntegrationChannel
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.4.4; terraform-cli 0.14.7) datadog-api-client-go/1.0.0-beta.19 (go go1.16.3; os darwin; arch amd64)
     url: https://api.datadoghq.com/api/v1/integration/slack/configuration/accounts/test_account/channels/%23tfTestAccDatadogIntegrationSlackChannelImportlocal1618934236
     method: DELETE
+    id: 9
   response:
     body: ""
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "4"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Date:
-      - Tue, 20 Apr 2021 15:57:21 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Dd-Debug:
-      - nLnnBNvlCFDECRnZvzDb0z4sAO35G+IMidcAs8vrCKyjvsKWE8Yd9S3n6OjZ1qRN
-      X-Dd-Version:
-      - "35.4352700"
-      X-Frame-Options:
-      - SAMEORIGIN
+    headers: null
     status: 204 No Content
     code: 204
-    duration: ""
+    duration: "0ms"

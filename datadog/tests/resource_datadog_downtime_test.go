@@ -11,10 +11,9 @@ import (
 	"github.com/terraform-providers/terraform-provider-datadog/datadog"
 	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/utils"
 
-	datadogV1 "github.com/DataDog/datadog-api-client-go/api/v1/datadog"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 func TestAccDatadogDowntime_Basic(t *testing.T) {
@@ -266,7 +265,7 @@ func TestAccDatadogDowntime_WeekDayRecurring(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDatadogDowntimeExists(accProvider, "datadog_downtime.foo"),
 					resource.TestCheckResourceAttr(
-						"datadog_downtime.foo", "scope.0", "WeekDaysRecurrence"),
+						"datadog_downtime.foo", "scope.0", "scope:WeekDaysRecurrence"),
 					resource.TestCheckResourceAttr(
 						"datadog_downtime.foo", "start", "1735646400"),
 					resource.TestCheckResourceAttr(
@@ -305,7 +304,7 @@ func TestAccDatadogDowntime_RRule(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDatadogDowntimeExists(accProvider, "datadog_downtime.foo"),
 					resource.TestCheckResourceAttr(
-						"datadog_downtime.foo", "scope.0", "RRuleRecurrence"),
+						"datadog_downtime.foo", "scope.0", "scope:RRuleRecurrence"),
 					resource.TestCheckResourceAttr(
 						"datadog_downtime.foo", "start", "1735646400"),
 					resource.TestCheckResourceAttr(
@@ -360,7 +359,7 @@ func TestAccDatadogDowntime_Updated(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDatadogDowntimeExists(accProvider, "datadog_downtime.foo"),
 					resource.TestCheckResourceAttr(
-						"datadog_downtime.foo", "scope.0", "Updated"),
+						"datadog_downtime.foo", "scope.0", "scope:Updated"),
 					resource.TestCheckResourceAttr(
 						"datadog_downtime.foo", "start", "1735707600"),
 					resource.TestCheckResourceAttr(
@@ -439,10 +438,10 @@ func testAccCheckDatadogDowntimeDestroy(accProvider func() (*schema.Provider, er
 	return func(s *terraform.State) error {
 		provider, _ := accProvider()
 		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV1 := providerConf.DatadogClientV1
-		authV1 := providerConf.AuthV1
+		apiInstances := providerConf.DatadogApiInstances
+		auth := providerConf.Auth
 
-		if err := datadogDowntimeDestroyHelper(authV1, s, datadogClientV1); err != nil {
+		if err := datadogDowntimeDestroyHelper(auth, s, apiInstances); err != nil {
 			return err
 		}
 		return nil
@@ -453,10 +452,10 @@ func testAccCheckDatadogDowntimeExists(accProvider func() (*schema.Provider, err
 	return func(s *terraform.State) error {
 		provider, _ := accProvider()
 		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV1 := providerConf.DatadogClientV1
-		authV1 := providerConf.AuthV1
+		apiInstances := providerConf.DatadogApiInstances
+		auth := providerConf.Auth
 
-		if err := datadogDowntimeExistsHelper(authV1, s, datadogClientV1); err != nil {
+		if err := datadogDowntimeExistsHelper(auth, s, apiInstances); err != nil {
 			return err
 		}
 		return nil
@@ -696,7 +695,7 @@ resource "datadog_downtime" "foo" {
 func testAccCheckDatadogDowntimeConfigWeekDaysRecurrence(uniq string) string {
 	return fmt.Sprintf(`
 resource "datadog_downtime" "foo" {
-  scope = ["WeekDaysRecurrence"]
+  scope = ["scope:WeekDaysRecurrence"]
   start = 1735646400
   end   = 1735732799
 
@@ -714,7 +713,7 @@ resource "datadog_downtime" "foo" {
 func testAccCheckDatadogDowntimeConfigRRule(uniq string) string {
 	return fmt.Sprintf(`
 resource "datadog_downtime" "foo" {
-  scope = ["RRuleRecurrence"]
+  scope = ["scope:RRuleRecurrence"]
   start = 1735646400
   end   = 1735732799
 
@@ -731,7 +730,7 @@ resource "datadog_downtime" "foo" {
 func testAccCheckDatadogDowntimeConfigUpdated(uniq string) string {
 	return fmt.Sprintf(`
 resource "datadog_downtime" "foo" {
-  scope = ["Updated"]
+  scope = ["scope:Updated"]
   start = 1735707600
   end   = 1735765200
 
@@ -739,6 +738,8 @@ resource "datadog_downtime" "foo" {
     type   = "days"
     period = 3
   }
+
+  mute_first_recovery_notification = true
 
   message = "%s"
   monitor_tags = ["*"]
@@ -767,14 +768,14 @@ EOF
 func testAccCheckDatadogDowntimeConfigDiffStart(uniq string) string {
 	return fmt.Sprintf(`
 resource "datadog_downtime" "foo" {
-  scope = ["somescope"]
+  scope = ["new:somescope"]
 
   monitor_tags = ["*"]
   message = "%s"
 }`, uniq)
 }
 
-func datadogDowntimeDestroyHelper(ctx context.Context, s *terraform.State, datadogClientV1 *datadogV1.APIClient) error {
+func datadogDowntimeDestroyHelper(ctx context.Context, s *terraform.State, apiInstances *utils.ApiInstances) error {
 	for _, r := range s.RootModule().Resources {
 		if r.Type != "datadog_downtime" {
 			continue
@@ -785,13 +786,13 @@ func datadogDowntimeDestroyHelper(ctx context.Context, s *terraform.State, datad
 		err := utils.Retry(2, 5, func() error {
 			for _, r := range s.RootModule().Resources {
 				if r.Primary.ID != "" {
-					dt, httpResp, err := datadogClientV1.DowntimesApi.GetDowntime(ctx, int64(id))
+					dt, httpResp, err := apiInstances.GetDowntimesApiV1().GetDowntime(ctx, int64(id))
 					if err != nil {
 						if httpResp != nil && httpResp.StatusCode == 404 {
 							return nil
 						}
 						return &utils.FatalError{Prob: fmt.Sprintf("received an error retrieving Downtime %s", err)}
-					} else if !dt.GetActive() {
+					} else if canceled, ok := dt.GetCanceledOk(); !dt.GetActive() || (ok && canceled != nil) {
 						// Datadog only cancels downtime on DELETE so if its not Active, its deleted
 						return nil
 					}
@@ -805,14 +806,14 @@ func datadogDowntimeDestroyHelper(ctx context.Context, s *terraform.State, datad
 	return nil
 }
 
-func datadogDowntimeExistsHelper(ctx context.Context, s *terraform.State, datadogClientV1 *datadogV1.APIClient) error {
+func datadogDowntimeExistsHelper(ctx context.Context, s *terraform.State, apiInstances *utils.ApiInstances) error {
 	for _, r := range s.RootModule().Resources {
 		if r.Type != "datadog_downtime" {
 			continue
 		}
 
 		id, _ := strconv.Atoi(r.Primary.ID)
-		if _, _, err := datadogClientV1.DowntimesApi.GetDowntime(ctx, int64(id)); err != nil {
+		if _, _, err := apiInstances.GetDowntimesApiV1().GetDowntime(ctx, int64(id)); err != nil {
 			return fmt.Errorf("received an error retrieving downtime %s", err)
 		}
 	}

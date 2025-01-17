@@ -11,6 +11,10 @@ Terraform provides helpful [Extending Terraform][1] documentation for best pract
 -   [tfplugindocs][8]
 -   [gotestsum][9] (to run project tests) `gotestsum` executable binary is installed into `$GOPATH/bin` when running `make get-test-deps`. Add the `$GOPATH/bin` directory to your `$PATH`
 
+## Adding new resources
+
+All new resources should be written using [Terraform Plugin Framework][11]. See [here][12] for examples of current resources implemented using Terraform Plugin Framework. **NOTE**: We currently support [Protocol Version 5][13].
+
 ## Makefile
 
 The root of this project contains a `GNUmakefile` with the purpose of making each development step easier. While some commands are outlined here, please see [GNUmakefile][5] for all available commands.
@@ -70,9 +74,9 @@ The Datadog terraform provider uses the standard [Terraform Testing Framework][6
 
 **NOTE** Use the API and APP keys for a sandbox/test organization, never an account hosting production data. This test suite will create/update/delete real resources.
 
--   `DD_API_KEY="<api_key>" DD_APP_KEY=<app_key> make testall` will run the test suite against the real Datadog API.
+-   `DD_TEST_CLIENT_API_KEY="<api_key>" DD_TEST_CLIENT_APP_KEY=<app_key> make testall` will run the test suite against the real Datadog API.
 
-We also use `cassettes` to record API request/responses, which allows the test suite to be reliable and run very quickly. There are a few environment variables that can control this behavior (All commands are assumed to be prefixed with `DD_API_KEY=` and `DD_APP_KEY=`)
+We also use `cassettes` to record API request/responses, which allows the test suite to be reliable and run very quickly. There are a few environment variables that can control this behavior (All commands are assumed to be prefixed with `DD_TEST_CLIENT_API_KEY=` and `DD_TEST_CLIENT_APP_KEY=`). You can configure the api url of the test suite using `DD_TEST_SITE_URL="<api_url>"`.
 
 -   `TESTARGS`: Allows passing extra flags directly to the underlying `go test` command. Most often used to run individual tests:
     -   Ex: `TESTARGS="-run TestAccDatadogServiceLevelObjective_Basic" make testall`
@@ -80,6 +84,10 @@ We also use `cassettes` to record API request/responses, which allows the test s
     -   `RECORD=none make testall`: Run against the real Datadog API.
     -   `RECORD=true make testall`: Run against the real Datadog API and record the request/response to be used later.
     -   `RECORD=false make testall`: Don't interact with the real Datadog API, instead playback against the recorded cassettes.
+
+## Debugging the Provider
+
+Follow the [official documentation][10]
 
 ## Generating Documentation
 
@@ -104,6 +112,12 @@ where:
 
 **NOTE** If you run this command just after a release of the underlying clients, this will automatically pick up the latest tag without needing to specify the version.
 
+## Pull request labels
+
+To help with changelog documentation, all pull requests must be labelled properly.
+
+It needs one changelog label (among `improvement`, `feature`, `bugfix`, `note` and `no-changelog`), and one resource mentioned in the title as a prefix (if not `no-changelog`) corresponding to the resource being changed (For example `[datadog_dashboard] Fix issue`).
+
 [1]: https://www.terraform.io/docs/extend/index.html
 [2]: https://www.terraform.io/downloads.html
 [3]: https://golang.org/doc/install
@@ -113,3 +127,7 @@ where:
 [7]: https://golang.org/cmd/go/#hdr-GOPATH_environment_variable
 [8]: https://github.com/hashicorp/terraform-plugin-docs
 [9]: https://github.com/gotestyourself/gotestsum
+[10]: https://www.terraform.io/plugin/sdkv2/debugging
+[11]: https://developer.hashicorp.com/terraform/plugin/framework
+[12]: https://github.com/DataDog/terraform-provider-datadog/tree/master/datadog/fwprovider
+[13]: https://developer.hashicorp.com/terraform/plugin/terraform-plugin-protocol#protocol-version-5

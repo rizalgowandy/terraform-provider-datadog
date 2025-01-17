@@ -2,6 +2,7 @@ package datadog
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/utils"
@@ -15,44 +16,52 @@ func dataSourceDatadogSecurityMonitoringFilters() *schema.Resource {
 		Description: "Use this data source to retrieve information about existing security monitoring filters for use in other resources.",
 		ReadContext: dataSourceDatadogSecurityFiltersRead,
 
-		Schema: map[string]*schema.Schema{
-			// Computed
-			"filters_ids": {
-				Description: "List of IDs of filters.",
-				Type:        schema.TypeList,
-				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-			"filters": {
-				Description: "List of filters.",
-				Type:        schema.TypeList,
-				Computed:    true,
-				Elem: &schema.Resource{
-					Schema: securityMonitoringFilterSchema(),
+		SchemaFunc: func() map[string]*schema.Schema {
+			return map[string]*schema.Schema{
+				// Computed
+				"filters_ids": {
+					Description: "List of IDs of filters.",
+					Type:        schema.TypeList,
+					Computed:    true,
+					Elem:        &schema.Schema{Type: schema.TypeString},
 				},
-			},
+				"filters": {
+					Description: "List of filters.",
+					Type:        schema.TypeList,
+					Computed:    true,
+					Elem: &schema.Resource{
+						Schema: securityMonitoringFilterSchema(),
+					},
+				},
+			}
 		},
 	}
 }
 
 func dataSourceDatadogSecurityFiltersRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	providerConf := meta.(*ProviderConfiguration)
-	datadogClientV2 := providerConf.DatadogClientV2
-	authV2 := providerConf.AuthV2
+	apiInstances := providerConf.DatadogApiInstances
+	auth := providerConf.Auth
 
 	filterIds := make([]string, 0)
 	filters := make([]map[string]interface{}, 0)
 
-	response, httpresp, err := datadogClientV2.SecurityMonitoringApi.ListSecurityFilters(authV2)
-
+	response, httpresp, err := apiInstances.GetSecurityMonitoringApiV2().ListSecurityFilters(auth)
 	if err != nil {
 		return utils.TranslateClientErrorDiag(err, httpresp, "error listing filters")
 	}
-	if err := utils.CheckForUnparsed(response); err != nil {
-		return diag.FromErr(err)
-	}
 
+	diags := diag.Diagnostics{}
 	for _, filter := range response.GetData() {
+		if err := utils.CheckForUnparsed(filter); err != nil {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  fmt.Sprintf("skipping security monitoring filter with id: %s", filter.GetId()),
+				Detail:   fmt.Sprintf("security monitoring filter contains unparsed object: %v", err),
+			})
+			continue
+		}
+
 		// get filter id
 		filterIds = append(filterIds, filter.GetId())
 
@@ -77,7 +86,7 @@ func dataSourceDatadogSecurityFiltersRead(ctx context.Context, d *schema.Resourc
 	d.Set("filters", filters)
 	d.Set("filters_ids", filterIds)
 
-	return nil
+	return diags
 }
 
 func buildUniqueId(ids []string) string {

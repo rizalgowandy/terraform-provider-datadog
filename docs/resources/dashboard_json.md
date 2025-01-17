@@ -510,16 +510,22 @@ EOF
 
 ### Required
 
-- **dashboard** (String) The JSON formatted definition of the Dashboard.
+- `dashboard` (String) The JSON formatted definition of the Dashboard.
 
 ### Optional
 
-- **dashboard_lists** (Set of Number) The list of dashboard lists this dashboard belongs to.
-- **url** (String) The URL of the dashboard.
+- `dashboard_lists` (Set of Number) A list of dashboard lists this dashboard belongs to. This attribute should not be set if managing the corresponding dashboard lists using Terraform as it causes inconsistent behavior.
+- `url` (String) The URL of the dashboard.
 
 ### Read-Only
 
-- **dashboard_lists_removed** (Set of Number) The list of dashboard lists this dashboard should be removed from. Internal only.
-- **id** (String) The ID of this resource.
+- `dashboard_lists_removed` (Set of Number) The list of dashboard lists this dashboard should be removed from. Internal only.
+- `id` (String) The ID of this resource.
 
+## Import
 
+Import is supported using the following syntax:
+
+```shell
+terraform import datadog_dashboard_json.my_service_dashboard sv7-gyh-kas
+```

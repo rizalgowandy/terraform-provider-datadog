@@ -7,8 +7,9 @@ import (
 	"sync"
 
 	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/utils"
+	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/validators"
 
-	datadogV1 "github.com/DataDog/datadog-api-client-go/api/v1/datadog"
+	"github.com/DataDog/datadog-api-client-go/v2/api/datadogV1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -17,56 +18,61 @@ import (
 var logCustomPipelineMutex = sync.Mutex{}
 
 const (
-	tfArithmeticProcessor        = "arithmetic_processor"
-	tfAttributeRemapperProcessor = "attribute_remapper"
-	tfCategoryProcessor          = "category_processor"
-	tfDateRemapperProcessor      = "date_remapper"
-	tfGeoIPParserProcessor       = "geo_ip_parser"
-	tfGrokParserProcessor        = "grok_parser"
-	tfLookupProcessor            = "lookup_processor"
-	tfMessageRemapperProcessor   = "message_remapper"
-	tfNestedPipelineProcessor    = "pipeline"
-	tfServiceRemapperProcessor   = "service_remapper"
-	tfStatusRemapperProcessor    = "status_remapper"
-	tfStringBuilderProcessor     = "string_builder_processor"
-	tfTraceIDRemapperProcessor   = "trace_id_remapper"
-	tfURLParserProcessor         = "url_parser"
-	tfUserAgentParserProcessor   = "user_agent_parser"
+	tfArithmeticProcessor           = "arithmetic_processor"
+	tfAttributeRemapperProcessor    = "attribute_remapper"
+	tfCategoryProcessor             = "category_processor"
+	tfDateRemapperProcessor         = "date_remapper"
+	tfGeoIPParserProcessor          = "geo_ip_parser"
+	tfGrokParserProcessor           = "grok_parser"
+	tfLookupProcessor               = "lookup_processor"
+	tfReferenceTableLookupProcessor = "reference_table_lookup_processor"
+	tfMessageRemapperProcessor      = "message_remapper"
+	tfNestedPipelineProcessor       = "pipeline"
+	tfServiceRemapperProcessor      = "service_remapper"
+	tfStatusRemapperProcessor       = "status_remapper"
+	tfStringBuilderProcessor        = "string_builder_processor"
+	tfTraceIDRemapperProcessor      = "trace_id_remapper"
+	tfURLParserProcessor            = "url_parser"
+	tfUserAgentParserProcessor      = "user_agent_parser"
+	// This type string is used to differentiate between LookupProcessor and ReferenceTableLookupProcessor, due to them sharing a `type` in the API.
+	ddReferenceTableLookupProcessor = "reference-table-" + string(datadogV1.LOGSLOOKUPPROCESSORTYPE_LOOKUP_PROCESSOR)
 )
 
 var tfProcessorTypes = map[string]string{
-	tfArithmeticProcessor:        string(datadogV1.LOGSARITHMETICPROCESSORTYPE_ARITHMETIC_PROCESSOR),
-	tfAttributeRemapperProcessor: string(datadogV1.LOGSATTRIBUTEREMAPPERTYPE_ATTRIBUTE_REMAPPER),
-	tfCategoryProcessor:          string(datadogV1.LOGSCATEGORYPROCESSORTYPE_CATEGORY_PROCESSOR),
-	tfDateRemapperProcessor:      string(datadogV1.LOGSDATEREMAPPERTYPE_DATE_REMAPPER),
-	tfGeoIPParserProcessor:       string(datadogV1.LOGSGEOIPPARSERTYPE_GEO_IP_PARSER),
-	tfGrokParserProcessor:        string(datadogV1.LOGSGROKPARSERTYPE_GROK_PARSER),
-	tfLookupProcessor:            string(datadogV1.LOGSLOOKUPPROCESSORTYPE_LOOKUP_PROCESSOR),
-	tfMessageRemapperProcessor:   string(datadogV1.LOGSMESSAGEREMAPPERTYPE_MESSAGE_REMAPPER),
-	tfNestedPipelineProcessor:    string(datadogV1.LOGSPIPELINEPROCESSORTYPE_PIPELINE),
-	tfServiceRemapperProcessor:   string(datadogV1.LOGSSERVICEREMAPPERTYPE_SERVICE_REMAPPER),
-	tfStatusRemapperProcessor:    string(datadogV1.LOGSSTATUSREMAPPERTYPE_STATUS_REMAPPER),
-	tfStringBuilderProcessor:     string(datadogV1.LOGSSTRINGBUILDERPROCESSORTYPE_STRING_BUILDER_PROCESSOR),
-	tfTraceIDRemapperProcessor:   string(datadogV1.LOGSTRACEREMAPPERTYPE_TRACE_ID_REMAPPER),
-	tfURLParserProcessor:         string(datadogV1.LOGSURLPARSERTYPE_URL_PARSER),
-	tfUserAgentParserProcessor:   string(datadogV1.LOGSUSERAGENTPARSERTYPE_USER_AGENT_PARSER),
+	tfArithmeticProcessor:           string(datadogV1.LOGSARITHMETICPROCESSORTYPE_ARITHMETIC_PROCESSOR),
+	tfAttributeRemapperProcessor:    string(datadogV1.LOGSATTRIBUTEREMAPPERTYPE_ATTRIBUTE_REMAPPER),
+	tfCategoryProcessor:             string(datadogV1.LOGSCATEGORYPROCESSORTYPE_CATEGORY_PROCESSOR),
+	tfDateRemapperProcessor:         string(datadogV1.LOGSDATEREMAPPERTYPE_DATE_REMAPPER),
+	tfGeoIPParserProcessor:          string(datadogV1.LOGSGEOIPPARSERTYPE_GEO_IP_PARSER),
+	tfGrokParserProcessor:           string(datadogV1.LOGSGROKPARSERTYPE_GROK_PARSER),
+	tfLookupProcessor:               string(datadogV1.LOGSLOOKUPPROCESSORTYPE_LOOKUP_PROCESSOR),
+	tfReferenceTableLookupProcessor: ddReferenceTableLookupProcessor,
+	tfMessageRemapperProcessor:      string(datadogV1.LOGSMESSAGEREMAPPERTYPE_MESSAGE_REMAPPER),
+	tfNestedPipelineProcessor:       string(datadogV1.LOGSPIPELINEPROCESSORTYPE_PIPELINE),
+	tfServiceRemapperProcessor:      string(datadogV1.LOGSSERVICEREMAPPERTYPE_SERVICE_REMAPPER),
+	tfStatusRemapperProcessor:       string(datadogV1.LOGSSTATUSREMAPPERTYPE_STATUS_REMAPPER),
+	tfStringBuilderProcessor:        string(datadogV1.LOGSSTRINGBUILDERPROCESSORTYPE_STRING_BUILDER_PROCESSOR),
+	tfTraceIDRemapperProcessor:      string(datadogV1.LOGSTRACEREMAPPERTYPE_TRACE_ID_REMAPPER),
+	tfURLParserProcessor:            string(datadogV1.LOGSURLPARSERTYPE_URL_PARSER),
+	tfUserAgentParserProcessor:      string(datadogV1.LOGSUSERAGENTPARSERTYPE_USER_AGENT_PARSER),
 }
 
 var tfProcessors = map[string]*schema.Schema{
-	tfArithmeticProcessor:        arithmeticProcessor,
-	tfAttributeRemapperProcessor: attributeRemapper,
-	tfCategoryProcessor:          categoryProcessor,
-	tfDateRemapperProcessor:      dateRemapper,
-	tfGeoIPParserProcessor:       geoIPParser,
-	tfGrokParserProcessor:        grokParser,
-	tfLookupProcessor:            lookupProcessor,
-	tfMessageRemapperProcessor:   messageRemapper,
-	tfServiceRemapperProcessor:   serviceRemapper,
-	tfStatusRemapperProcessor:    statusRemmaper,
-	tfStringBuilderProcessor:     stringBuilderProcessor,
-	tfTraceIDRemapperProcessor:   traceIDRemapper,
-	tfURLParserProcessor:         urlParser,
-	tfUserAgentParserProcessor:   userAgentParser,
+	tfArithmeticProcessor:           arithmeticProcessor,
+	tfAttributeRemapperProcessor:    attributeRemapper,
+	tfCategoryProcessor:             categoryProcessor,
+	tfDateRemapperProcessor:         dateRemapper,
+	tfGeoIPParserProcessor:          geoIPParser,
+	tfGrokParserProcessor:           grokParser,
+	tfLookupProcessor:               lookupProcessor,
+	tfReferenceTableLookupProcessor: referenceTableLookupProcessor,
+	tfMessageRemapperProcessor:      messageRemapper,
+	tfServiceRemapperProcessor:      serviceRemapper,
+	tfStatusRemapperProcessor:       statusRemmaper,
+	tfStringBuilderProcessor:        stringBuilderProcessor,
+	tfTraceIDRemapperProcessor:      traceIDRemapper,
+	tfURLParserProcessor:            urlParser,
+	tfUserAgentParserProcessor:      userAgentParser,
 }
 
 var ddProcessorTypes = map[string]string{
@@ -77,6 +83,7 @@ var ddProcessorTypes = map[string]string{
 	string(datadogV1.LOGSGEOIPPARSERTYPE_GEO_IP_PARSER):                       tfGeoIPParserProcessor,
 	string(datadogV1.LOGSGROKPARSERTYPE_GROK_PARSER):                          tfGrokParserProcessor,
 	string(datadogV1.LOGSLOOKUPPROCESSORTYPE_LOOKUP_PROCESSOR):                tfLookupProcessor,
+	ddReferenceTableLookupProcessor:                                           tfReferenceTableLookupProcessor,
 	string(datadogV1.LOGSMESSAGEREMAPPERTYPE_MESSAGE_REMAPPER):                tfMessageRemapperProcessor,
 	string(datadogV1.LOGSPIPELINEPROCESSORTYPE_PIPELINE):                      tfNestedPipelineProcessor,
 	string(datadogV1.LOGSSERVICEREMAPPERTYPE_SERVICE_REMAPPER):                tfServiceRemapperProcessor,
@@ -212,7 +219,10 @@ var grokParser = &schema.Schema{
 				Description: "List of sample logs for this parser. It can save up to 5 samples. Each sample takes up to 5000 characters.",
 				Type:        schema.TypeList,
 				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Elem: &schema.Schema{
+					Type:             schema.TypeString,
+					ValidateDiagFunc: validators.ValidateNonEmptyStrings,
+				},
 			},
 			"grok": {
 				Type:     schema.TypeList,
@@ -247,6 +257,22 @@ var lookupProcessor = &schema.Schema{
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"default_lookup": {Description: "Default lookup value to use if there is no entry in the lookup table for the value of the source attribute.", Type: schema.TypeString, Optional: true},
+		},
+	},
+}
+
+var referenceTableLookupProcessor = &schema.Schema{
+	Type:        schema.TypeList,
+	MaxItems:    1,
+	Description: "Reference Table Lookup Processor. Reference Tables are in public beta. More information can be found in the [official docs](https://docs.datadoghq.com/logs/processing/processors/?tab=ui#lookup-processor)",
+	Optional:    true,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name":                    {Description: "Name of the processor", Type: schema.TypeString, Optional: true},
+			"is_enabled":              {Description: "If the processor is enabled or not.", Type: schema.TypeBool, Optional: true},
+			"source":                  {Description: "Name of the source attribute used to do the lookup.", Type: schema.TypeString, Required: true},
+			"target":                  {Description: "Name of the attribute that contains the result of the lookup.", Type: schema.TypeString, Required: true},
+			"lookup_enrichment_table": {Description: "Name of the Reference Table for the source attribute and their associated target attribute values.", Type: schema.TypeString, Required: true},
 		},
 	},
 }
@@ -355,14 +381,16 @@ func resourceDatadogLogsCustomPipeline() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Description: "Provides a Datadog [Logs Pipeline API](https://docs.datadoghq.com/api/v1/logs-pipelines/) resource, which is used to create and manage Datadog logs custom pipelines. Each `datadog_logs_custom_pipeline` resource defines a complete pipeline. The order of the pipelines is maintained in a different resource: `datadog_logs_pipeline_order`. When creating a new pipeline, you need to **explicitly** add this pipeline to the `datadog_logs_pipeline_order` resource to track the pipeline. Similarly, when a pipeline needs to be destroyed, remove its references from the `datadog_logs_pipeline_order` resource.",
-		Schema:      getPipelineSchema(false),
+		SchemaFunc: func() map[string]*schema.Schema {
+			return getPipelineSchema(false)
+		},
 	}
 }
 
 func resourceDatadogLogsPipelineCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	providerConf := meta.(*ProviderConfiguration)
-	datadogClientV1 := providerConf.DatadogClientV1
-	authV1 := providerConf.AuthV1
+	apiInstances := providerConf.DatadogApiInstances
+	auth := providerConf.Auth
 
 	logCustomPipelineMutex.Lock()
 	defer logCustomPipelineMutex.Unlock()
@@ -371,7 +399,7 @@ func resourceDatadogLogsPipelineCreate(ctx context.Context, d *schema.ResourceDa
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	createdPipeline, httpResponse, err := datadogClientV1.LogsPipelinesApi.CreateLogsPipeline(authV1, *ddPipeline)
+	createdPipeline, httpResponse, err := apiInstances.GetLogsPipelinesApiV1().CreateLogsPipeline(auth, *ddPipeline)
 	if err != nil {
 		return utils.TranslateClientErrorDiag(err, httpResponse, "failed to create logs pipeline using Datadog API")
 	}
@@ -404,10 +432,10 @@ func updateLogsCustomPipelineState(d *schema.ResourceData, pipeline *datadogV1.L
 
 func resourceDatadogLogsPipelineRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	providerConf := meta.(*ProviderConfiguration)
-	datadogClientV1 := providerConf.DatadogClientV1
-	authV1 := providerConf.AuthV1
+	apiInstances := providerConf.DatadogApiInstances
+	auth := providerConf.Auth
 
-	ddPipeline, httpresp, err := datadogClientV1.LogsPipelinesApi.GetLogsPipeline(authV1, d.Id())
+	ddPipeline, httpresp, err := apiInstances.GetLogsPipelinesApiV1().GetLogsPipeline(auth, d.Id())
 	if err != nil {
 		if httpresp != nil && httpresp.StatusCode == 400 {
 			d.SetId("")
@@ -423,8 +451,8 @@ func resourceDatadogLogsPipelineRead(ctx context.Context, d *schema.ResourceData
 
 func resourceDatadogLogsPipelineUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	providerConf := meta.(*ProviderConfiguration)
-	datadogClientV1 := providerConf.DatadogClientV1
-	authV1 := providerConf.AuthV1
+	apiInstances := providerConf.DatadogApiInstances
+	auth := providerConf.Auth
 
 	logCustomPipelineMutex.Lock()
 	defer logCustomPipelineMutex.Unlock()
@@ -433,7 +461,7 @@ func resourceDatadogLogsPipelineUpdate(ctx context.Context, d *schema.ResourceDa
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	updatedPipeline, httpResponse, err := datadogClientV1.LogsPipelinesApi.UpdateLogsPipeline(authV1, d.Id(), *ddPipeline)
+	updatedPipeline, httpResponse, err := apiInstances.GetLogsPipelinesApiV1().UpdateLogsPipeline(auth, d.Id(), *ddPipeline)
 	if err != nil {
 		return utils.TranslateClientErrorDiag(err, httpResponse, "error updating logs pipeline")
 	}
@@ -445,13 +473,13 @@ func resourceDatadogLogsPipelineUpdate(ctx context.Context, d *schema.ResourceDa
 
 func resourceDatadogLogsPipelineDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	providerConf := meta.(*ProviderConfiguration)
-	datadogClientV1 := providerConf.DatadogClientV1
-	authV1 := providerConf.AuthV1
+	apiInstances := providerConf.DatadogApiInstances
+	auth := providerConf.Auth
 
 	logCustomPipelineMutex.Lock()
 	defer logCustomPipelineMutex.Unlock()
 
-	if httpResponse, err := datadogClientV1.LogsPipelinesApi.DeleteLogsPipeline(authV1, d.Id()); err != nil {
+	if httpResponse, err := apiInstances.GetLogsPipelinesApiV1().DeleteLogsPipeline(auth, d.Id()); err != nil {
 		// API returns 400 when the specific pipeline id doesn't exist through DELETE request.
 		if strings.Contains(err.Error(), "400 Bad Request") {
 			return nil
@@ -511,6 +539,9 @@ func buildTerraformProcessor(ddProcessor datadogV1.LogsProcessor) (map[string]in
 	} else if ddProcessor.LogsLookupProcessor != nil {
 		tfProcessor = buildTerraformLookupProcessor(ddProcessor.LogsLookupProcessor)
 		processorType = string(datadogV1.LOGSLOOKUPPROCESSORTYPE_LOOKUP_PROCESSOR)
+	} else if ddProcessor.ReferenceTableLogsLookupProcessor != nil {
+		tfProcessor = buildTerraformReferenceTableLookupProcessor(ddProcessor.ReferenceTableLogsLookupProcessor)
+		processorType = ddReferenceTableLookupProcessor
 	} else if ddProcessor.LogsPipelineProcessor != nil {
 		tfProcessor, err = buildTerraformNestedPipeline(ddProcessor.LogsPipelineProcessor)
 		processorType = string(datadogV1.LOGSPIPELINEPROCESSORTYPE_PIPELINE)
@@ -568,6 +599,16 @@ func buildTerraformLookupProcessor(ddLookup *datadogV1.LogsLookupProcessor) map[
 	}
 
 	return tfProcessor
+}
+
+func buildTerraformReferenceTableLookupProcessor(ddLookup *datadogV1.ReferenceTableLogsLookupProcessor) map[string]interface{} {
+	return map[string]interface{}{
+		"source":                  ddLookup.GetSource(),
+		"target":                  ddLookup.GetTarget(),
+		"lookup_enrichment_table": ddLookup.GetLookupEnrichmentTable(),
+		"name":                    ddLookup.GetName(),
+		"is_enabled":              ddLookup.GetIsEnabled(),
+	}
 }
 
 func buildTerraformNestedPipeline(ddNested *datadogV1.LogsPipelineProcessor) (map[string]interface{}, error) {
@@ -721,7 +762,7 @@ func buildDatadogPipeline(d *schema.ResourceData) (*datadogV1.LogsPipeline, erro
 		if !ok {
 			filter = make(map[string]interface{})
 		}
-		ddPipeline.SetFilter(buildDatadogFilter(filter))
+		ddPipeline.SetFilter(*buildDatadogFilter(filter))
 	}
 	ddProcessors, err := buildDatadogProcessors(d.Get("processor").([]interface{}))
 	if err != nil {
@@ -741,7 +782,7 @@ func buildDatadogProcessors(tfProcessors []interface{}) (*[]datadogV1.LogsProces
 				if err != nil {
 					return nil, err
 				}
-				ddProcessors[i] = ddProcessor
+				ddProcessors[i] = *ddProcessor
 				break
 			}
 		}
@@ -749,7 +790,7 @@ func buildDatadogProcessors(tfProcessors []interface{}) (*[]datadogV1.LogsProces
 	return &ddProcessors, nil
 }
 
-func buildDatadogProcessor(ddProcessorType string, tfProcessor map[string]interface{}) (datadogV1.LogsProcessor, error) {
+func buildDatadogProcessor(ddProcessorType string, tfProcessor map[string]interface{}) (*datadogV1.LogsProcessor, error) {
 	var ddProcessor = datadogV1.LogsProcessor{}
 	var err error
 	switch ddProcessorType {
@@ -775,16 +816,18 @@ func buildDatadogProcessor(ddProcessorType string, tfProcessor map[string]interf
 		ddProcessor = datadogV1.LogsGrokParserAsLogsProcessor(buildDatadogGrokParser(tfProcessor))
 	case string(datadogV1.LOGSLOOKUPPROCESSORTYPE_LOOKUP_PROCESSOR):
 		ddProcessor = datadogV1.LogsLookupProcessorAsLogsProcessor(buildDatadogLookupProcessor(tfProcessor))
+	case ddReferenceTableLookupProcessor:
+		ddProcessor = datadogV1.ReferenceTableLogsLookupProcessorAsLogsProcessor(buildDatadogReferenceTableLookupProcessor(tfProcessor))
 	case string(datadogV1.LOGSPIPELINEPROCESSORTYPE_PIPELINE):
 		ddNestedPipeline, err := buildDatadogNestedPipeline(tfProcessor)
 		if err != nil {
-			return ddProcessor, err
+			return &ddProcessor, err
 		}
 		ddProcessor = datadogV1.LogsPipelineProcessorAsLogsProcessor(ddNestedPipeline)
 	case string(datadogV1.LOGSSTRINGBUILDERPROCESSORTYPE_STRING_BUILDER_PROCESSOR):
 		ddStringBuilderProcessor, err := buildDatadogStringBuilderProcessor(tfProcessor)
 		if err != nil {
-			return ddProcessor, err
+			return &ddProcessor, err
 		}
 		ddProcessor = datadogV1.LogsStringBuilderProcessorAsLogsProcessor(ddStringBuilderProcessor)
 	case string(datadogV1.LOGSURLPARSERTYPE_URL_PARSER):
@@ -795,7 +838,7 @@ func buildDatadogProcessor(ddProcessorType string, tfProcessor map[string]interf
 		err = fmt.Errorf("failed to recoginize processor type: %s", ddProcessorType)
 	}
 
-	return ddProcessor, err
+	return &ddProcessor, err
 }
 
 func buildDatadogURLParser(tfProcessor map[string]interface{}) *datadogV1.LogsURLParser {
@@ -865,17 +908,41 @@ func buildDatadogLookupProcessor(tfProcessor map[string]interface{}) *datadogV1.
 	return ddLookupProcessor
 }
 
+func buildDatadogReferenceTableLookupProcessor(tfProcessor map[string]interface{}) *datadogV1.ReferenceTableLogsLookupProcessor {
+	ddLookupProcessor := datadogV1.NewReferenceTableLogsLookupProcessorWithDefaults()
+	if tfSource, exists := tfProcessor["source"].(string); exists {
+		ddLookupProcessor.SetSource(tfSource)
+	}
+	if tfTarget, exists := tfProcessor["target"].(string); exists {
+		ddLookupProcessor.SetTarget(tfTarget)
+	}
+	if tfName, exists := tfProcessor["name"].(string); exists {
+		ddLookupProcessor.SetName(tfName)
+	}
+	if tfIsEnabled, exists := tfProcessor["is_enabled"].(bool); exists {
+		ddLookupProcessor.SetIsEnabled(tfIsEnabled)
+	}
+	if tfReferenceTable, exists := tfProcessor["lookup_enrichment_table"].(string); exists {
+		ddLookupProcessor.SetLookupEnrichmentTable(tfReferenceTable)
+	}
+	return ddLookupProcessor
+}
+
 func buildDatadogNestedPipeline(tfProcessor map[string]interface{}) (*datadogV1.LogsPipelineProcessor, error) {
 	ddNestedPipeline := datadogV1.NewLogsPipelineProcessorWithDefaults()
 	if tfFilter, exist := tfProcessor["filter"].([]interface{}); exist && len(tfFilter) > 0 {
-		ddNestedPipeline.SetFilter(buildDatadogFilter(tfFilter[0].(map[string]interface{})))
+		filter, ok := tfFilter[0].(map[string]interface{})
+		if !ok {
+			filter = make(map[string]interface{})
+		}
+		ddNestedPipeline.SetFilter(*buildDatadogFilter(filter))
 	}
 	if tfProcessors, exists := tfProcessor["processor"].([]interface{}); exists && len(tfProcessors) > 0 {
 		ddProcessors, err := buildDatadogProcessors(tfProcessors)
 		if err != nil {
 			return ddNestedPipeline, err
 		}
-		ddNestedPipeline.Processors = ddProcessors
+		ddNestedPipeline.Processors = *ddProcessors
 	}
 	if tfName, exists := tfProcessor["name"].(string); exists {
 		ddNestedPipeline.SetName(tfName)
@@ -931,7 +998,9 @@ func buildDatadogGrokParser(tfProcessor map[string]interface{}) *datadogV1.LogsG
 	if tfSamples, exists := tfProcessor["samples"].([]interface{}); exists && len(tfSamples) > 0 {
 		ddSamples := make([]string, len(tfSamples))
 		for i, tfSample := range tfSamples {
-			ddSamples[i] = tfSample.(string)
+			if tfSampleValue, ok := tfSample.(string); ok {
+				ddSamples[i] = tfSampleValue
+			}
 		}
 		ddGrokParser.SetSamples(ddSamples)
 	}
@@ -1000,7 +1069,7 @@ func buildDatadogStatusRemapper(tfProcessor map[string]interface{}) *datadogV1.L
 func buildDatadogTraceRemapper(tfProcessor map[string]interface{}) *datadogV1.LogsTraceRemapper {
 	ddRemapper := datadogV1.NewLogsTraceRemapperWithDefaults()
 	if ddSources := buildDatadogSources(tfProcessor); ddSources != nil {
-		ddRemapper.Sources = &ddSources
+		ddRemapper.Sources = ddSources
 	}
 	if tfName, exists := tfProcessor["name"].(string); exists {
 		ddRemapper.SetName(tfName)
@@ -1025,7 +1094,11 @@ func buildDatadogCategoryProcessor(tfProcessor map[string]interface{}) *datadogV
 				ddCategory.SetName(tfName)
 			}
 			if tfFilter, exist := tfCategory["filter"].([]interface{}); exist && len(tfFilter) > 0 {
-				ddCategory.SetFilter(buildDatadogFilter(tfFilter[0].(map[string]interface{})))
+				filter, ok := tfFilter[0].(map[string]interface{})
+				if !ok {
+					filter = make(map[string]interface{})
+				}
+				ddCategory.SetFilter(*buildDatadogFilter(filter))
 			}
 
 			ddCategories[i] = ddCategory
@@ -1120,14 +1193,14 @@ func buildDatadogDateRemapperProcessor(tfProcessor map[string]interface{}) *data
 	return ddDate
 }
 
-func buildDatadogFilter(tfFilter map[string]interface{}) datadogV1.LogsFilter {
+func buildDatadogFilter(tfFilter map[string]interface{}) *datadogV1.LogsFilter {
 	ddFilter := datadogV1.LogsFilter{}
 	var query string
 	if tfQuery, exists := tfFilter["query"].(string); exists {
 		query = tfQuery
 	}
 	ddFilter.SetQuery(query)
-	return ddFilter
+	return &ddFilter
 }
 
 func getPipelineSchema(isNested bool) map[string]*schema.Schema {

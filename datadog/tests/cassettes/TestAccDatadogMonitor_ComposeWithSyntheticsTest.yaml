@@ -1,981 +1,837 @@
----
-version: 1
+version: 2
 interactions:
-- request:
-    body: |
-      {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":100}},"priority":0,"query":"avg(last_5m):max:system.load.1{*} by {host} \u003e 100","tags":[],"type":"metric alert"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "362"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - ValidateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/validate
-    method: POST
-  response:
-    body: '{}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "2"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:21 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":100}},"priority":0,"query":"avg(last_5m):max:system.load.1{*} by {host} \u003e 100","tags":[],"type":"metric alert"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "362"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - ValidateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/validate
-    method: POST
-  response:
-    body: '{}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "2"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:22 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":100}},"priority":0,"query":"avg(last_5m):max:system.load.1{*} by {host} \u003e 100","tags":[],"type":"metric alert"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "362"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - ValidateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/validate
-    method: POST
-  response:
-    body: '{}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "2"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:22 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521","options":{"include_tags":true,"new_host_delay":300,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":100}},"priority":0,"query":"avg(last_5m):max:system.load.1{*} by {host} \u003e 100","tags":[],"type":"metric alert"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "339"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - CreateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor
-    method: POST
-  response:
-    body: '{"restricted_roles":null,"tags":[],"deleted":null,"query":"avg(last_5m):max:system.load.1{*} by {host} > 100","message":"test","id":58558992,"multi":true,"name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521","created":"2021-12-20T18:55:22.330812+00:00","created_at":1640026522000,"creator":{"id":1445416,"handle":"frog@datadoghq.com","name":null,"email":"frog@datadoghq.com"},"org_id":321813,"modified":"2021-12-20T18:55:22.330812+00:00","priority":null,"overall_state_modified":null,"overall_state":"No Data","type":"metric alert","options":{"notify_audit":false,"silenced":{},"include_tags":true,"thresholds":{"critical":100.0},"require_full_window":true,"new_host_delay":300,"notify_no_data":false}}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:22 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Ratelimit-Limit:
-      - "500"
-      X-Ratelimit-Period:
-      - "10"
-      X-Ratelimit-Remaining:
-      - "499"
-      X-Ratelimit-Reset:
-      - "8"
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"config":{"assertions":[{"operator":"isNot","target":500,"type":"statusCode"}],"configVariables":[],"request":{"method":"GET","timeout":60,"url":"https://docs.datadoghq.com"}},"locations":["aws:eu-central-1"],"message":"Notify @pagerduty","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521","options":{"min_failure_duration":10,"min_location_failed":1,"tick_every":900},"status":"live","subtype":"http","tags":["foo:bar","foo","env:test"],"type":"api"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "479"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - CreateSyntheticsAPITest
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/synthetics/tests/api
-    method: POST
-  response:
-    body: '{"status":"live","public_id":"3i4-f78-w3w","tags":["foo:bar","foo","env:test"],"org_id":321813,"locations":["aws:eu-central-1"],"message":"Notify @pagerduty","deleted_at":null,"name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521","monitor_id":58558993,"type":"api","created_at":"2021-12-20T18:55:22.385329+00:00","modified_at":"2021-12-20T18:55:22.385329+00:00","subtype":"http","config":{"request":{"url":"https://docs.datadoghq.com","method":"GET","timeout":60},"assertions":[{"operator":"isNot","type":"statusCode","target":500}],"configVariables":[]},"options":{"min_failure_duration":10,"min_location_failed":1,"tick_every":900}}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:22 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Ratelimit-Limit:
-      - "12000"
-      X-Ratelimit-Period:
-      - "60"
-      X-Ratelimit-Remaining:
-      - "11999"
-      X-Ratelimit-Reset:
-      - "38"
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: ""
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Dd-Operation-Id:
-      - GetAPITest
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/synthetics/tests/api/3i4-f78-w3w
-    method: GET
-  response:
-    body: '{"status":"live","public_id":"3i4-f78-w3w","tags":["foo:bar","foo","env:test"],"locations":["aws:eu-central-1"],"message":"Notify @pagerduty","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521","monitor_id":58558993,"type":"api","subtype":"http","config":{"request":{"url":"https://docs.datadoghq.com","method":"GET","timeout":60},"assertions":[{"operator":"isNot","type":"statusCode","target":500}],"configVariables":[]},"options":{"min_failure_duration":10,"min_location_failed":1,"tick_every":900}}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:22 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Ratelimit-Limit:
-      - "1000"
-      X-Ratelimit-Period:
-      - "60"
-      X-Ratelimit-Remaining:
-      - "999"
-      X-Ratelimit-Reset:
-      - "38"
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521-composite","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{}},"priority":0,"query":"58558992 || 58558993","tags":[],"type":"composite"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "321"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - ValidateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/validate
-    method: POST
-  response:
-    body: '{}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "2"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:23 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521-composite","options":{"include_tags":true,"new_host_delay":300,"notify_no_data":false,"require_full_window":true,"thresholds":{}},"priority":0,"query":"58558992 || 58558993","tags":[],"type":"composite"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "298"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - CreateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor
-    method: POST
-  response:
-    body: '{"restricted_roles":null,"tags":[],"deleted":null,"query":"58558992 || 58558993","message":"test","id":58558996,"multi":false,"name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521-composite","created":"2021-12-20T18:55:23.142147+00:00","created_at":1640026523000,"creator":{"id":1445416,"handle":"frog@datadoghq.com","name":null,"email":"frog@datadoghq.com"},"org_id":321813,"modified":"2021-12-20T18:55:23.142147+00:00","priority":null,"overall_state_modified":null,"overall_state":"No Data","type":"composite","options":{"notify_audit":false,"silenced":{},"include_tags":true,"require_full_window":true,"new_host_delay":300,"notify_no_data":false}}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:23 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Ratelimit-Limit:
-      - "500"
-      X-Ratelimit-Period:
-      - "10"
-      X-Ratelimit-Remaining:
-      - "498"
-      X-Ratelimit-Reset:
-      - "7"
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":100}},"priority":0,"query":"avg(last_5m):max:system.load.1{*} by {host} \u003e 100","tags":[],"type":"metric alert"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "362"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - ValidateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/validate
-    method: POST
-  response:
-    body: '{}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "2"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:23 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521-composite","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{}},"priority":0,"query":"58558992 || 58558993","tags":[],"type":"composite"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "321"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - ValidateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/validate
-    method: POST
-  response:
-    body: '{}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "2"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:23 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: ""
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Dd-Operation-Id:
-      - GetMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/58558992
-    method: GET
-  response:
-    body: '{"restricted_roles":null,"tags":[],"deleted":null,"query":"avg(last_5m):max:system.load.1{*} by {host} > 100","message":"test","id":58558992,"multi":true,"name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521","created":"2021-12-20T18:55:22.330812+00:00","created_at":1640026522000,"creator":{"id":1445416,"handle":"frog@datadoghq.com","name":null,"email":"frog@datadoghq.com"},"org_id":321813,"modified":"2021-12-20T18:55:22.330812+00:00","priority":null,"overall_state_modified":null,"overall_state":"No Data","type":"metric alert","options":{"notify_audit":false,"silenced":{},"include_tags":true,"thresholds":{"critical":100.0},"require_full_window":true,"new_host_delay":300,"notify_no_data":false}}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:23 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Ratelimit-Limit:
-      - "3000"
-      X-Ratelimit-Period:
-      - "10"
-      X-Ratelimit-Remaining:
-      - "2999"
-      X-Ratelimit-Reset:
-      - "7"
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":100}},"priority":0,"query":"avg(last_5m):max:system.load.1{*} by {host} \u003e 100","tags":[],"type":"metric alert"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "362"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - ValidateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/validate
-    method: POST
-  response:
-    body: '{}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "2"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:23 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: ""
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Dd-Operation-Id:
-      - GetTest
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/synthetics/tests/3i4-f78-w3w
-    method: GET
-  response:
-    body: '{"status":"live","public_id":"3i4-f78-w3w","tags":["foo:bar","foo","env:test"],"locations":["aws:eu-central-1"],"message":"Notify @pagerduty","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521","monitor_id":58558993,"type":"api","subtype":"http","config":{"request":{"url":"https://docs.datadoghq.com","method":"GET","timeout":60},"assertions":[{"operator":"isNot","type":"statusCode","target":500}],"configVariables":[]},"options":{"min_failure_duration":10,"min_location_failed":1,"tick_every":900}}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:24 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Ratelimit-Limit:
-      - "1000"
-      X-Ratelimit-Period:
-      - "60"
-      X-Ratelimit-Remaining:
-      - "998"
-      X-Ratelimit-Reset:
-      - "37"
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: ""
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Dd-Operation-Id:
-      - GetAPITest
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/synthetics/tests/api/3i4-f78-w3w
-    method: GET
-  response:
-    body: '{"status":"live","public_id":"3i4-f78-w3w","tags":["foo:bar","foo","env:test"],"locations":["aws:eu-central-1"],"message":"Notify @pagerduty","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521","monitor_id":58558993,"type":"api","subtype":"http","config":{"request":{"url":"https://docs.datadoghq.com","method":"GET","timeout":60},"assertions":[{"operator":"isNot","type":"statusCode","target":500}],"configVariables":[]},"options":{"min_failure_duration":10,"min_location_failed":1,"tick_every":900}}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:24 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Ratelimit-Limit:
-      - "1000"
-      X-Ratelimit-Period:
-      - "60"
-      X-Ratelimit-Remaining:
-      - "997"
-      X-Ratelimit-Reset:
-      - "36"
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: ""
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Dd-Operation-Id:
-      - GetMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/58558996
-    method: GET
-  response:
-    body: '{"restricted_roles":null,"tags":[],"deleted":null,"query":"58558992 || 58558993","message":"test","id":58558996,"multi":false,"name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521-composite","created":"2021-12-20T18:55:23.142147+00:00","created_at":1640026523000,"creator":{"id":1445416,"handle":"frog@datadoghq.com","name":null,"email":"frog@datadoghq.com"},"org_id":321813,"modified":"2021-12-20T18:55:23.142147+00:00","priority":null,"overall_state_modified":null,"overall_state":"No Data","type":"composite","options":{"notify_audit":false,"silenced":{},"include_tags":true,"require_full_window":true,"new_host_delay":300,"notify_no_data":false}}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:24 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Ratelimit-Limit:
-      - "3000"
-      X-Ratelimit-Period:
-      - "10"
-      X-Ratelimit-Remaining:
-      - "2998"
-      X-Ratelimit-Reset:
-      - "6"
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521-composite","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{}},"priority":0,"query":"58558992 || 58558993","tags":[],"type":"composite"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "321"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - ValidateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/validate
-    method: POST
-  response:
-    body: '{}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "2"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:24 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":100}},"priority":0,"query":"avg(last_5m):max:system.load.1{*} by {host} \u003e 100","tags":[],"type":"metric alert"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "362"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - ValidateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/validate
-    method: POST
-  response:
-    body: '{}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "2"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:24 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1640026521-composite","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{}},"priority":0,"query":"58558992 || 58558993","tags":[],"type":"composite"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "321"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - ValidateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/validate
-    method: POST
-  response:
-    body: '{}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "2"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:24 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: ""
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Dd-Operation-Id:
-      - DeleteMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/58558996
-    method: DELETE
-  response:
-    body: '{"deleted_monitor_id":58558996}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:25 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: ""
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Dd-Operation-Id:
-      - DeleteMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/58558992
-    method: DELETE
-  response:
-    body: '{"deleted_monitor_id":58558992}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:25 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"public_ids":["3i4-f78-w3w"]}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "31"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - DeleteTests
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/synthetics/tests/delete
-    method: POST
-  response:
-    body: '{"deleted_tests":[{"deleted_at":"2021-12-20T18:55:25.450099+00:00","public_id":"3i4-f78-w3w"}]}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:25 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Ratelimit-Limit:
-      - "12000"
-      X-Ratelimit-Period:
-      - "60"
-      X-Ratelimit-Remaining:
-      - "11999"
-      X-Ratelimit-Reset:
-      - "35"
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: ""
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Dd-Operation-Id:
-      - GetMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.10.0; terraform-cli 0.14.7) datadog-api-client-go/1.7.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/0
-    method: GET
-  response:
-    body: '{"errors": ["Monitor not found"]}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 20 Dec 2021 18:55:25 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 404 Not Found
-    code: 404
-    duration: ""
+    - id: 0
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 386
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":100}},"priority":null,"query":"avg(last_5m):max:system.load.1{*} by {host} \u003e 100","restricted_roles":null,"tags":[],"type":"metric alert"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/validate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 3
+        uncompressed: false
+        body: |
+            {}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 114.304333ms
+    - id: 1
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 386
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":100}},"priority":null,"query":"avg(last_5m):max:system.load.1{*} by {host} \u003e 100","restricted_roles":null,"tags":[],"type":"metric alert"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/validate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 3
+        uncompressed: false
+        body: |
+            {}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 100.71625ms
+    - id: 2
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 386
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":100}},"priority":null,"query":"avg(last_5m):max:system.load.1{*} by {host} \u003e 100","restricted_roles":null,"tags":[],"type":"metric alert"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/validate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 3
+        uncompressed: false
+        body: |
+            {}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 241.459583ms
+    - id: 3
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 363
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581","options":{"include_tags":true,"new_host_delay":300,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":100}},"priority":null,"query":"avg(last_5m):max:system.load.1{*} by {host} \u003e 100","restricted_roles":null,"tags":[],"type":"metric alert"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"id":148530986,"org_id":321813,"type":"metric alert","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581","message":"test","tags":[],"query":"avg(last_5m):max:system.load.1{*} by {host} > 100","options":{"include_tags":true,"new_host_delay":300,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":100.0},"notify_audit":false,"silenced":{}},"multi":true,"created_at":1720040583000,"created":"2024-07-03T21:03:03.666629+00:00","modified":"2024-07-03T21:03:03.666629+00:00","deleted":null,"restricted_roles":null,"priority":null,"restriction_policy":null,"overall_state_modified":null,"overall_state":"No Data","creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com","id":1445416}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 132.992042ms
+    - id: 4
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 499
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"config":{"assertions":[{"operator":"isNot","target":500,"type":"statusCode"}],"configVariables":[],"request":{"method":"GET","timeout":60,"url":"https://docs.datadoghq.com"}},"locations":["aws:eu-central-1"],"message":"Notify @pagerduty","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581","options":{"httpVersion":"any","min_failure_duration":10,"min_location_failed":1,"tick_every":900},"status":"live","subtype":"http","tags":["foo:bar","foo","env:test"],"type":"api"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/api
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"r5s-hib-7px","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581","status":"live","type":"api","tags":["foo:bar","foo","env:test"],"created_at":"2024-07-03T21:03:03.628276+00:00","modified_at":"2024-07-03T21:03:03.628276+00:00","config":{"assertions":[{"operator":"isNot","target":500,"type":"statusCode"}],"configVariables":[],"request":{"method":"GET","timeout":60,"url":"https://docs.datadoghq.com"}},"message":"Notify @pagerduty","options":{"httpVersion":"any","min_failure_duration":10,"min_location_failed":1,"tick_every":900},"locations":["aws:eu-central-1"],"subtype":"http","created_by":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"},"deleted_at":null,"monitor_id":148530985,"org_id":321813,"modified_by":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 886.461042ms
+    - id: 5
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/api/r5s-hib-7px
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"r5s-hib-7px","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581","status":"live","type":"api","tags":["foo:bar","foo","env:test"],"created_at":"2024-07-03T21:03:03.628276+00:00","modified_at":"2024-07-03T21:03:03.628276+00:00","config":{"assertions":[{"operator":"isNot","target":500,"type":"statusCode"}],"configVariables":[],"request":{"method":"GET","timeout":60,"url":"https://docs.datadoghq.com"}},"message":"Notify @pagerduty","options":{"httpVersion":"any","min_failure_duration":10,"min_location_failed":1,"tick_every":900},"locations":["aws:eu-central-1"],"subtype":"http","monitor_id":148530985,"creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 88.624208ms
+    - id: 6
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 347
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581-composite","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{}},"priority":null,"query":"148530986 || 148530985","restricted_roles":null,"tags":[],"type":"composite"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/validate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 3
+        uncompressed: false
+        body: |
+            {}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 62.939625ms
+    - id: 7
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 324
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581-composite","options":{"include_tags":true,"new_host_delay":300,"notify_no_data":false,"require_full_window":true,"thresholds":{}},"priority":null,"query":"148530986 || 148530985","restricted_roles":null,"tags":[],"type":"composite"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"id":148530987,"org_id":321813,"type":"composite","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581-composite","message":"test","tags":[],"query":"148530986 || 148530985","options":{"include_tags":true,"new_host_delay":300,"notify_no_data":false,"require_full_window":true,"notify_audit":false,"silenced":{}},"multi":false,"created_at":1720040584000,"created":"2024-07-03T21:03:04.513625+00:00","modified":"2024-07-03T21:03:04.513625+00:00","deleted":null,"restricted_roles":null,"priority":null,"restriction_policy":null,"overall_state_modified":null,"overall_state":"No Data","creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com","id":1445416}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 126.039ms
+    - id: 8
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 386
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":100}},"priority":null,"query":"avg(last_5m):max:system.load.1{*} by {host} \u003e 100","restricted_roles":null,"tags":[],"type":"metric alert"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/148530986/validate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 3
+        uncompressed: false
+        body: |
+            {}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 82.012375ms
+    - id: 9
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 347
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581-composite","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{}},"priority":null,"query":"148530986 || 148530985","restricted_roles":null,"tags":[],"type":"composite"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/148530987/validate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 3
+        uncompressed: false
+        body: |
+            {}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 78.263667ms
+    - id: 10
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/148530986
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"id":148530986,"org_id":321813,"type":"metric alert","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581","message":"test","tags":[],"query":"avg(last_5m):max:system.load.1{*} by {host} > 100","options":{"include_tags":true,"new_host_delay":300,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":100.0},"notify_audit":false,"silenced":{}},"multi":true,"created_at":1720040583000,"created":"2024-07-03T21:03:03.666629+00:00","modified":"2024-07-03T21:03:03.666629+00:00","deleted":null,"restricted_roles":null,"priority":null,"overall_state_modified":"2024-07-03T21:03:05+00:00","overall_state":"OK","creator":{"name":null,"email":"frog@datadoghq.com","handle":"frog@datadoghq.com","id":1445416}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 100.101042ms
+    - id: 11
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/r5s-hib-7px
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"r5s-hib-7px","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581","status":"live","type":"api","tags":["foo:bar","foo","env:test"],"created_at":"2024-07-03T21:03:03.628276+00:00","modified_at":"2024-07-03T21:03:03.628276+00:00","config":{"assertions":[{"operator":"isNot","target":500,"type":"statusCode"}],"configVariables":[],"request":{"method":"GET","timeout":60,"url":"https://docs.datadoghq.com"}},"message":"Notify @pagerduty","options":{"httpVersion":"any","min_failure_duration":10,"min_location_failed":1,"tick_every":900},"locations":["aws:eu-central-1"],"subtype":"http","monitor_id":148530985,"creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 98.232917ms
+    - id: 12
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 386
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":100}},"priority":null,"query":"avg(last_5m):max:system.load.1{*} by {host} \u003e 100","restricted_roles":null,"tags":[],"type":"metric alert"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/148530986/validate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 3
+        uncompressed: false
+        body: |
+            {}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 83.168292ms
+    - id: 13
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/api/r5s-hib-7px
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"public_id":"r5s-hib-7px","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581","status":"live","type":"api","tags":["foo:bar","foo","env:test"],"created_at":"2024-07-03T21:03:03.628276+00:00","modified_at":"2024-07-03T21:03:03.628276+00:00","config":{"assertions":[{"operator":"isNot","target":500,"type":"statusCode"}],"configVariables":[],"request":{"method":"GET","timeout":60,"url":"https://docs.datadoghq.com"}},"message":"Notify @pagerduty","options":{"httpVersion":"any","min_failure_duration":10,"min_location_failed":1,"tick_every":900},"locations":["aws:eu-central-1"],"subtype":"http","monitor_id":148530985,"creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com"}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 88.457916ms
+    - id: 14
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/148530987
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"id":148530987,"org_id":321813,"type":"composite","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581-composite","message":"test","tags":[],"query":"148530986 || 148530985","options":{"include_tags":true,"new_host_delay":300,"notify_no_data":false,"require_full_window":true,"notify_audit":false,"silenced":{}},"multi":false,"created_at":1720040584000,"created":"2024-07-03T21:03:04.513625+00:00","modified":"2024-07-03T21:03:04.513625+00:00","deleted":null,"restricted_roles":null,"priority":null,"overall_state_modified":null,"overall_state":"No Data","creator":{"name":null,"email":"frog@datadoghq.com","handle":"frog@datadoghq.com","id":1445416}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 143.426708ms
+    - id: 15
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 347
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581-composite","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{}},"priority":null,"query":"148530986 || 148530985","restricted_roles":null,"tags":[],"type":"composite"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/148530987/validate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 3
+        uncompressed: false
+        body: |
+            {}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 77.949708ms
+    - id: 16
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 386
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":100}},"priority":null,"query":"avg(last_5m):max:system.load.1{*} by {host} \u003e 100","restricted_roles":null,"tags":[],"type":"metric alert"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/148530986/validate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 3
+        uncompressed: false
+        body: |
+            {}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 60.720916ms
+    - id: 17
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 347
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"test","name":"tf-TestAccDatadogMonitor_ComposeWithSyntheticsTest-local-1720040581-composite","options":{"include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{}},"priority":null,"query":"148530986 || 148530985","restricted_roles":null,"tags":[],"type":"composite"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/148530987/validate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 3
+        uncompressed: false
+        body: |
+            {}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 77.876208ms
+    - id: 18
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/148530987
+        method: DELETE
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"deleted_monitor_id":148530987}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 176.865625ms
+    - id: 19
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/148530986
+        method: DELETE
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"deleted_monitor_id":148530986}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 168.75875ms
+    - id: 20
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 31
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"public_ids":["r5s-hib-7px"]}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/synthetics/tests/delete
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"deleted_tests":[{"public_id":"r5s-hib-7px","deleted_at":"2024-07-03T21:03:07.345701+00:00"}]}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 464.64575ms
+    - id: 21
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/148530986
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: '{"errors":["Monitor not found"]}'
+        headers:
+            Content-Type:
+                - application/json
+        status: 404 Not Found
+        code: 404
+        duration: 83.699292ms
+    - id: 22
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/148530987
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: '{"errors":["Monitor not found"]}'
+        headers:
+            Content-Type:
+                - application/json
+        status: 404 Not Found
+        code: 404
+        duration: 82.230292ms

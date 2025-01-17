@@ -1,0 +1,536 @@
+---
+version: 2
+interactions:
+    - id: 0
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 673
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"cases":[{"condition":"","name":"","notifications":["@user"],"status":"high"}],"hasExtendedTitle":false,"isEnabled":false,"message":"impossible travel rule triggered","name":"tf-TestAccDatadogSecurityMonitoringRule_ImpossibleTravelRule-local-1728485708","options":{"decreaseCriticalityBasedOnEnv":false,"detectionMethod":"impossible_travel","evaluationWindow":0,"impossibleTravelOptions":{"baselineUserLocations":true},"keepAlive":600,"maxSignalDuration":900},"queries":[{"aggregation":"geo_data","distinctFields":[],"groupByFields":["@usr.handle"],"metric":"@usr.handle","metrics":[],"name":"my_query","query":"*"}],"tags":["u:tomato","i:tomato"],"type":"log_detection"}
+        form: {}
+        headers:
+            Accept:
+                - '*/*'
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v2/security_monitoring/rules/validation
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 0
+        uncompressed: false
+        body: ""
+        headers:
+            Content-Type:
+                - text/html; charset=utf-8
+        status: 204 No Content
+        code: 204
+        duration: 168.671125ms
+    - id: 1
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 673
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"cases":[{"condition":"","name":"","notifications":["@user"],"status":"high"}],"hasExtendedTitle":false,"isEnabled":false,"message":"impossible travel rule triggered","name":"tf-TestAccDatadogSecurityMonitoringRule_ImpossibleTravelRule-local-1728485708","options":{"decreaseCriticalityBasedOnEnv":false,"detectionMethod":"impossible_travel","evaluationWindow":0,"impossibleTravelOptions":{"baselineUserLocations":true},"keepAlive":600,"maxSignalDuration":900},"queries":[{"aggregation":"geo_data","distinctFields":[],"groupByFields":["@usr.handle"],"metric":"@usr.handle","metrics":[],"name":"my_query","query":"*"}],"tags":["u:tomato","i:tomato"],"type":"log_detection"}
+        form: {}
+        headers:
+            Accept:
+                - '*/*'
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v2/security_monitoring/rules/validation
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 0
+        uncompressed: false
+        body: ""
+        headers:
+            Content-Type:
+                - text/html; charset=utf-8
+        status: 204 No Content
+        code: 204
+        duration: 160.707417ms
+    - id: 2
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 673
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"cases":[{"condition":"","name":"","notifications":["@user"],"status":"high"}],"hasExtendedTitle":false,"isEnabled":false,"message":"impossible travel rule triggered","name":"tf-TestAccDatadogSecurityMonitoringRule_ImpossibleTravelRule-local-1728485708","options":{"decreaseCriticalityBasedOnEnv":false,"detectionMethod":"impossible_travel","evaluationWindow":0,"impossibleTravelOptions":{"baselineUserLocations":true},"keepAlive":600,"maxSignalDuration":900},"queries":[{"aggregation":"geo_data","distinctFields":[],"groupByFields":["@usr.handle"],"metric":"@usr.handle","metrics":[],"name":"my_query","query":"*"}],"tags":["u:tomato","i:tomato"],"type":"log_detection"}
+        form: {}
+        headers:
+            Accept:
+                - '*/*'
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v2/security_monitoring/rules/validation
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 0
+        uncompressed: false
+        body: ""
+        headers:
+            Content-Type:
+                - text/html; charset=utf-8
+        status: 204 No Content
+        code: 204
+        duration: 100.800375ms
+    - id: 3
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 673
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"cases":[{"condition":"","name":"","notifications":["@user"],"status":"high"}],"hasExtendedTitle":false,"isEnabled":false,"message":"impossible travel rule triggered","name":"tf-TestAccDatadogSecurityMonitoringRule_ImpossibleTravelRule-local-1728485708","options":{"decreaseCriticalityBasedOnEnv":false,"detectionMethod":"impossible_travel","evaluationWindow":0,"impossibleTravelOptions":{"baselineUserLocations":true},"keepAlive":600,"maxSignalDuration":900},"queries":[{"aggregation":"geo_data","distinctFields":[],"groupByFields":["@usr.handle"],"metric":"@usr.handle","metrics":[],"name":"my_query","query":"*"}],"tags":["u:tomato","i:tomato"],"type":"log_detection"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v2/security_monitoring/rules
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"id":"g9j-3tc-hrr","version":1,"name":"tf-TestAccDatadogSecurityMonitoringRule_ImpossibleTravelRule-local-1728485708","createdAt":1728485710663,"creationAuthorId":1445416,"isDefault":false,"isPartner":false,"isEnabled":false,"isBeta":false,"isDeleted":false,"isDeprecated":false,"queries":[{"query":"*","groupByFields":["@usr.handle"],"hasOptionalGroupByFields":false,"distinctFields":[],"metric":"@usr.handle","metrics":["@usr.handle"],"aggregation":"geo_data","name":"my_query"}],"options":{"keepAlive":600,"maxSignalDuration":900,"detectionMethod":"impossible_travel","evaluationWindow":0,"impossibleTravelOptions":{"baselineUserLocations":true},"decreaseCriticalityBasedOnEnv":false},"cases":[{"name":"","status":"high","notifications":["@user"],"condition":""}],"message":"impossible travel rule triggered","tags":["u:tomato","i:tomato"],"hasExtendedTitle":false,"type":"log_detection","filters":[]}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 114.692458ms
+    - id: 4
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v2/security_monitoring/rules/g9j-3tc-hrr
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"id":"g9j-3tc-hrr","version":1,"name":"tf-TestAccDatadogSecurityMonitoringRule_ImpossibleTravelRule-local-1728485708","createdAt":1728485710663,"creationAuthorId":1445416,"isDefault":false,"isPartner":false,"isEnabled":false,"isBeta":false,"isDeleted":false,"isDeprecated":false,"queries":[{"query":"*","groupByFields":["@usr.handle"],"hasOptionalGroupByFields":false,"distinctFields":[],"metric":"@usr.handle","metrics":["@usr.handle"],"aggregation":"geo_data","name":"my_query"}],"options":{"keepAlive":600,"maxSignalDuration":900,"detectionMethod":"impossible_travel","evaluationWindow":0,"impossibleTravelOptions":{"baselineUserLocations":true},"decreaseCriticalityBasedOnEnv":false},"cases":[{"name":"","status":"high","notifications":["@user"],"condition":""}],"message":"impossible travel rule triggered","tags":["u:tomato","i:tomato"],"hasExtendedTitle":false,"type":"log_detection","filters":[]}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 74.838625ms
+    - id: 5
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 673
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"cases":[{"condition":"","name":"","notifications":["@user"],"status":"high"}],"hasExtendedTitle":false,"isEnabled":false,"message":"impossible travel rule triggered","name":"tf-TestAccDatadogSecurityMonitoringRule_ImpossibleTravelRule-local-1728485708","options":{"decreaseCriticalityBasedOnEnv":false,"detectionMethod":"impossible_travel","evaluationWindow":0,"impossibleTravelOptions":{"baselineUserLocations":true},"keepAlive":600,"maxSignalDuration":900},"queries":[{"aggregation":"geo_data","distinctFields":[],"groupByFields":["@usr.handle"],"metric":"@usr.handle","metrics":[],"name":"my_query","query":"*"}],"tags":["u:tomato","i:tomato"],"type":"log_detection"}
+        form: {}
+        headers:
+            Accept:
+                - '*/*'
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v2/security_monitoring/rules/validation
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 0
+        uncompressed: false
+        body: ""
+        headers:
+            Content-Type:
+                - text/html; charset=utf-8
+        status: 204 No Content
+        code: 204
+        duration: 100.27875ms
+    - id: 6
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v2/security_monitoring/rules/g9j-3tc-hrr
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"id":"g9j-3tc-hrr","version":1,"name":"tf-TestAccDatadogSecurityMonitoringRule_ImpossibleTravelRule-local-1728485708","createdAt":1728485710663,"creationAuthorId":1445416,"isDefault":false,"isPartner":false,"isEnabled":false,"isBeta":false,"isDeleted":false,"isDeprecated":false,"queries":[{"query":"*","groupByFields":["@usr.handle"],"hasOptionalGroupByFields":false,"distinctFields":[],"metric":"@usr.handle","metrics":["@usr.handle"],"aggregation":"geo_data","name":"my_query"}],"options":{"keepAlive":600,"maxSignalDuration":900,"detectionMethod":"impossible_travel","evaluationWindow":0,"impossibleTravelOptions":{"baselineUserLocations":true},"decreaseCriticalityBasedOnEnv":false},"cases":[{"name":"","status":"high","notifications":["@user"],"condition":""}],"message":"impossible travel rule triggered","tags":["u:tomato","i:tomato"],"hasExtendedTitle":false,"type":"log_detection","filters":[]}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 80.618833ms
+    - id: 7
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 686
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"cases":[{"condition":"","name":"","notifications":["@user"],"status":"high"}],"hasExtendedTitle":false,"isEnabled":false,"message":"impossible travel rule triggered","name":"tf-TestAccDatadogSecurityMonitoringRule_ImpossibleTravelRule-local-1728485708","options":{"decreaseCriticalityBasedOnEnv":false,"detectionMethod":"impossible_travel","evaluationWindow":0,"impossibleTravelOptions":{"baselineUserLocations":true},"keepAlive":600,"maxSignalDuration":900},"queries":[{"aggregation":"geo_data","distinctFields":[],"groupByFields":["@usr.handle"],"metric":"@usr.handle","metrics":["@usr.handle"],"name":"my_query","query":"*"}],"tags":["u:tomato","i:tomato"],"type":"log_detection"}
+        form: {}
+        headers:
+            Accept:
+                - '*/*'
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v2/security_monitoring/rules/validation
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 0
+        uncompressed: false
+        body: ""
+        headers:
+            Content-Type:
+                - text/html; charset=utf-8
+        status: 204 No Content
+        code: 204
+        duration: 145.48925ms
+    - id: 8
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 686
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"cases":[{"condition":"","name":"","notifications":["@user"],"status":"high"}],"hasExtendedTitle":false,"isEnabled":false,"message":"impossible travel rule triggered","name":"tf-TestAccDatadogSecurityMonitoringRule_ImpossibleTravelRule-local-1728485708","options":{"decreaseCriticalityBasedOnEnv":false,"detectionMethod":"impossible_travel","evaluationWindow":0,"impossibleTravelOptions":{"baselineUserLocations":true},"keepAlive":600,"maxSignalDuration":900},"queries":[{"aggregation":"geo_data","distinctFields":[],"groupByFields":["@usr.handle"],"metric":"@usr.handle","metrics":["@usr.handle"],"name":"my_query","query":"*"}],"tags":["u:tomato","i:tomato"],"type":"log_detection"}
+        form: {}
+        headers:
+            Accept:
+                - '*/*'
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v2/security_monitoring/rules/validation
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 0
+        uncompressed: false
+        body: ""
+        headers:
+            Content-Type:
+                - text/html; charset=utf-8
+        status: 204 No Content
+        code: 204
+        duration: 103.775792ms
+    - id: 9
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v2/security_monitoring/rules/g9j-3tc-hrr
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"id":"g9j-3tc-hrr","version":1,"name":"tf-TestAccDatadogSecurityMonitoringRule_ImpossibleTravelRule-local-1728485708","createdAt":1728485710663,"creationAuthorId":1445416,"isDefault":false,"isPartner":false,"isEnabled":false,"isBeta":false,"isDeleted":false,"isDeprecated":false,"queries":[{"query":"*","groupByFields":["@usr.handle"],"hasOptionalGroupByFields":false,"distinctFields":[],"metric":"@usr.handle","metrics":["@usr.handle"],"aggregation":"geo_data","name":"my_query"}],"options":{"keepAlive":600,"maxSignalDuration":900,"detectionMethod":"impossible_travel","evaluationWindow":0,"impossibleTravelOptions":{"baselineUserLocations":true},"decreaseCriticalityBasedOnEnv":false},"cases":[{"name":"","status":"high","notifications":["@user"],"condition":""}],"message":"impossible travel rule triggered","tags":["u:tomato","i:tomato"],"hasExtendedTitle":false,"type":"log_detection","filters":[]}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 127.645333ms
+    - id: 10
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 717
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"cases":[{"condition":"","name":"new case name (updated)","notifications":["@user"],"status":"high"}],"filters":[],"hasExtendedTitle":false,"isEnabled":false,"message":"impossible travel rule triggered (updated)","name":"tf-TestAccDatadogSecurityMonitoringRule_ImpossibleTravelRule-local-1728485708","options":{"decreaseCriticalityBasedOnEnv":false,"detectionMethod":"impossible_travel","evaluationWindow":0,"impossibleTravelOptions":{"baselineUserLocations":true},"keepAlive":600,"maxSignalDuration":900},"queries":[{"aggregation":"geo_data","distinctFields":[],"groupByFields":["@usr.handle"],"metric":"@usr.handle","metrics":["@usr.handle"],"name":"my_updated_query","query":"*"}],"tags":["u:tomato","i:tomato"]}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v2/security_monitoring/rules/g9j-3tc-hrr
+        method: PUT
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"id":"g9j-3tc-hrr","version":2,"name":"tf-TestAccDatadogSecurityMonitoringRule_ImpossibleTravelRule-local-1728485708","createdAt":1728485710663,"creationAuthorId":1445416,"updateAuthorId":1445416,"isDefault":false,"isPartner":false,"isEnabled":false,"isBeta":false,"isDeleted":false,"isDeprecated":false,"queries":[{"query":"*","groupByFields":["@usr.handle"],"hasOptionalGroupByFields":false,"distinctFields":[],"metric":"@usr.handle","metrics":["@usr.handle"],"aggregation":"geo_data","name":"my_updated_query"}],"options":{"keepAlive":600,"maxSignalDuration":900,"detectionMethod":"impossible_travel","evaluationWindow":0,"impossibleTravelOptions":{"baselineUserLocations":true},"decreaseCriticalityBasedOnEnv":false},"cases":[{"name":"new case name (updated)","status":"high","notifications":["@user"],"condition":""}],"message":"impossible travel rule triggered (updated)","tags":["u:tomato","i:tomato"],"hasExtendedTitle":false,"type":"log_detection","filters":[]}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 146.911958ms
+    - id: 11
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v2/security_monitoring/rules/g9j-3tc-hrr
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"id":"g9j-3tc-hrr","version":2,"name":"tf-TestAccDatadogSecurityMonitoringRule_ImpossibleTravelRule-local-1728485708","createdAt":1728485710663,"creationAuthorId":1445416,"updateAuthorId":1445416,"isDefault":false,"isPartner":false,"isEnabled":false,"isBeta":false,"isDeleted":false,"isDeprecated":false,"queries":[{"query":"*","groupByFields":["@usr.handle"],"hasOptionalGroupByFields":false,"distinctFields":[],"metric":"@usr.handle","metrics":["@usr.handle"],"aggregation":"geo_data","name":"my_updated_query"}],"options":{"keepAlive":600,"maxSignalDuration":900,"detectionMethod":"impossible_travel","evaluationWindow":0,"impossibleTravelOptions":{"baselineUserLocations":true},"decreaseCriticalityBasedOnEnv":false},"cases":[{"name":"new case name (updated)","status":"high","notifications":["@user"],"condition":""}],"message":"impossible travel rule triggered (updated)","tags":["u:tomato","i:tomato"],"hasExtendedTitle":false,"type":"log_detection","filters":[]}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 116.529458ms
+    - id: 12
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v2/security_monitoring/rules/g9j-3tc-hrr
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"id":"g9j-3tc-hrr","version":2,"name":"tf-TestAccDatadogSecurityMonitoringRule_ImpossibleTravelRule-local-1728485708","createdAt":1728485710663,"creationAuthorId":1445416,"updateAuthorId":1445416,"isDefault":false,"isPartner":false,"isEnabled":false,"isBeta":false,"isDeleted":false,"isDeprecated":false,"queries":[{"query":"*","groupByFields":["@usr.handle"],"hasOptionalGroupByFields":false,"distinctFields":[],"metric":"@usr.handle","metrics":["@usr.handle"],"aggregation":"geo_data","name":"my_updated_query"}],"options":{"keepAlive":600,"maxSignalDuration":900,"detectionMethod":"impossible_travel","evaluationWindow":0,"impossibleTravelOptions":{"baselineUserLocations":true},"decreaseCriticalityBasedOnEnv":false},"cases":[{"name":"new case name (updated)","status":"high","notifications":["@user"],"condition":""}],"message":"impossible travel rule triggered (updated)","tags":["u:tomato","i:tomato"],"hasExtendedTitle":false,"type":"log_detection","filters":[]}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 93.790166ms
+    - id: 13
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - '*/*'
+        url: https://api.datadoghq.com/api/v2/security_monitoring/rules/g9j-3tc-hrr
+        method: DELETE
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 0
+        uncompressed: false
+        body: ""
+        headers: {}
+        status: 204 No Content
+        code: 204
+        duration: 134.942958ms
+    - id: 14
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v2/security_monitoring/rules/g9j-3tc-hrr
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"errors":["Threat detection rule not found: g9j-3tc-hrr"]}
+        headers:
+            Content-Type:
+                - application/json
+        status: 404 Not Found
+        code: 404
+        duration: 72.484916ms

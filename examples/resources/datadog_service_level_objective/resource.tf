@@ -10,20 +10,20 @@ resource "datadog_service_level_objective" "foo" {
   }
 
   thresholds {
-    timeframe       = "7d"
-    target          = 99.9
-    warning         = 99.99
-    target_display  = "99.900"
-    warning_display = "99.990"
+    timeframe = "7d"
+    target    = 99.9
+    warning   = 99.99
   }
 
   thresholds {
-    timeframe       = "30d"
-    target          = 99.9
-    warning         = 99.99
-    target_display  = "99.900"
-    warning_display = "99.990"
+    timeframe = "30d"
+    target    = 99.9
+    warning   = 99.99
   }
+
+  timeframe         = "30d"
+  target_threshold  = 99.9
+  warning_threshold = 99.99
 
   tags = ["foo:bar", "baz"]
 }
@@ -49,5 +49,44 @@ resource "datadog_service_level_objective" "bar" {
     warning   = 99.99
   }
 
+  timeframe         = "30d"
+  target_threshold  = 99.9
+  warning_threshold = 99.99
+
   tags = ["foo:bar", "baz"]
+}
+
+resource "datadog_service_level_objective" "time_slice_slo" {
+  name        = "Example Time Slice SLO"
+  type        = "time_slice"
+  description = "My custom time slice SLO"
+  sli_specification {
+    time_slice {
+      query {
+        formula {
+          formula_expression = "query1"
+        }
+        query {
+          metric_query {
+            name  = "query1"
+            query = "avg:my.custom.count.metric{*}.as_count()"
+          }
+        }
+      }
+      comparator = ">"
+      threshold  = 0.9
+    }
+  }
+
+  thresholds {
+    timeframe = "7d"
+    target    = 99.9
+    warning   = 99.99
+  }
+
+  timeframe         = "7d"
+  target_threshold  = 99.9
+  warning_threshold = 99.99
+
+  tags = ["service:myservice", "team:myteam"]
 }

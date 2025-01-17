@@ -1,591 +1,509 @@
 ---
-version: 1
+version: 2
 interactions:
-- request:
-    body: |
-      {"message":"some message Notify: @hipchat-channel","name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1634926787","options":{"escalation_message":"the situation has escalated @pagerduty","include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":2,"warning":1}},"priority":0,"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} \u003e 2","tags":["app:webserver"],"type":"metric alert"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "497"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - ValidateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.7.0; terraform-cli ) datadog-api-client-go/1.5.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/validate
-    method: POST
-  response:
-    body: '{}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "2"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Fri, 22 Oct 2021 18:19:48 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"message":"some message Notify: @hipchat-channel","name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1634926787","options":{"escalation_message":"the situation has escalated @pagerduty","include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":2,"warning":1}},"priority":0,"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} \u003e 2","tags":["app:webserver"],"type":"metric alert"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "497"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - ValidateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.7.0; terraform-cli 0.14.7) datadog-api-client-go/1.5.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/validate
-    method: POST
-  response:
-    body: '{}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "2"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Fri, 22 Oct 2021 18:19:49 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"end":1634941187,"message":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1634926787","monitor_tags":["app:webserver"],"scope":["*"],"start":1634937587,"timezone":"UTC"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "178"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - CreateDowntime
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.7.0; terraform-cli 0.14.7) datadog-api-client-go/1.5.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/downtime
-    method: POST
-  response:
-    body: '{"recurrence":null,"end":1634941187,"monitor_tags":["app:webserver"],"child_id":null,"canceled":null,"monitor_id":null,"created":1634926789,"org_id":321813,"modified":1634926789,"disabled":false,"start":1634937587,"creator_id":1445416,"parent_id":null,"timezone":"UTC","active":false,"scope":["*"],"message":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1634926787","downtime_type":0,"id":1517850383,"updater_id":null}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Fri, 22 Oct 2021 18:19:49 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"message":"some message Notify: @hipchat-channel","name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1634926787","options":{"escalation_message":"the situation has escalated @pagerduty","include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":2,"warning":1}},"priority":0,"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} \u003e 2","tags":["app:webserver"],"type":"metric alert"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "497"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - ValidateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.7.0; terraform-cli 0.14.7) datadog-api-client-go/1.5.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/validate
-    method: POST
-  response:
-    body: '{}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "2"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Fri, 22 Oct 2021 18:19:49 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"message":"some message Notify: @hipchat-channel","name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1634926787","options":{"escalation_message":"the situation has escalated @pagerduty","include_tags":true,"new_host_delay":300,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":2,"warning":1}},"priority":0,"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} \u003e 2","tags":["app:webserver"],"type":"metric alert"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "474"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - CreateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.7.0; terraform-cli 0.14.7) datadog-api-client-go/1.5.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor
-    method: POST
-  response:
-    body: '{"restricted_roles":null,"tags":["app:webserver"],"deleted":null,"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} > 2","message":"some message Notify: @hipchat-channel","id":51392666,"multi":true,"name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1634926787","created":"2021-10-22T18:19:49.543751+00:00","created_at":1634926789000,"creator":{"id":1445416,"handle":"frog@datadoghq.com","name":null,"email":"frog@datadoghq.com"},"org_id":321813,"modified":"2021-10-22T18:19:49.543751+00:00","priority":null,"overall_state_modified":null,"overall_state":"No Data","type":"metric alert","options":{"notify_audit":false,"silenced":{},"include_tags":true,"thresholds":{"critical":2.0,"warning":1.0},"require_full_window":true,"new_host_delay":300,"notify_no_data":false,"escalation_message":"the situation has escalated @pagerduty"}}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Fri, 22 Oct 2021 18:19:49 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Ratelimit-Limit:
-      - "500"
-      X-Ratelimit-Period:
-      - "10"
-      X-Ratelimit-Remaining:
-      - "499"
-      X-Ratelimit-Reset:
-      - "1"
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: ""
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Dd-Operation-Id:
-      - GetDowntime
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.7.0; terraform-cli 0.14.7) datadog-api-client-go/1.5.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/downtime/1517850383
-    method: GET
-  response:
-    body: '{"recurrence":null,"end":1634941187,"monitor_tags":["app:webserver"],"child_id":null,"canceled":null,"monitor_id":null,"created":1634926789,"org_id":321813,"modified":1634926789,"disabled":false,"start":1634937587,"creator_id":1445416,"parent_id":null,"timezone":"UTC","active":false,"scope":["*"],"message":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1634926787","downtime_type":0,"id":1517850383,"updater_id":null}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Fri, 22 Oct 2021 18:19:49 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"message":"some message Notify: @hipchat-channel","name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1634926787","options":{"escalation_message":"the situation has escalated @pagerduty","include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":2,"warning":1}},"priority":0,"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} \u003e 2","tags":["app:webserver"],"type":"metric alert"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "497"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - ValidateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.7.0; terraform-cli 0.14.7) datadog-api-client-go/1.5.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/validate
-    method: POST
-  response:
-    body: '{}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "2"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Fri, 22 Oct 2021 18:19:50 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: ""
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Dd-Operation-Id:
-      - GetMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.7.0; terraform-cli 0.14.7) datadog-api-client-go/1.5.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/51392666
-    method: GET
-  response:
-    body: '{"restricted_roles":null,"tags":["app:webserver"],"deleted":null,"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} > 2","message":"some message Notify: @hipchat-channel","id":51392666,"multi":true,"name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1634926787","created":"2021-10-22T18:19:49.543751+00:00","created_at":1634926789000,"creator":{"id":1445416,"handle":"frog@datadoghq.com","name":null,"email":"frog@datadoghq.com"},"org_id":321813,"modified":"2021-10-22T18:19:49.543751+00:00","priority":null,"overall_state_modified":null,"overall_state":"No Data","type":"metric alert","options":{"notify_audit":false,"silenced":{},"include_tags":true,"thresholds":{"critical":2.0,"warning":1.0},"require_full_window":true,"new_host_delay":300,"notify_no_data":false,"escalation_message":"the situation has escalated @pagerduty"}}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Fri, 22 Oct 2021 18:19:50 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Ratelimit-Limit:
-      - "3000"
-      X-Ratelimit-Period:
-      - "10"
-      X-Ratelimit-Remaining:
-      - "2999"
-      X-Ratelimit-Reset:
-      - "10"
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: ""
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Dd-Operation-Id:
-      - GetDowntime
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.7.0; terraform-cli 0.14.7) datadog-api-client-go/1.5.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/downtime/1517850383
-    method: GET
-  response:
-    body: '{"recurrence":null,"end":1634941187,"monitor_tags":["app:webserver"],"child_id":null,"canceled":null,"monitor_id":null,"created":1634926789,"org_id":321813,"modified":1634926789,"disabled":false,"start":1634937587,"creator_id":1445416,"parent_id":null,"timezone":"UTC","active":false,"scope":["*"],"message":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1634926787","downtime_type":0,"id":1517850383,"updater_id":null}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Fri, 22 Oct 2021 18:19:50 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"message":"some message Notify: @hipchat-channel","name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1634926787","options":{"escalation_message":"the situation has escalated @pagerduty","include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":2,"warning":1}},"priority":0,"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} \u003e 2","tags":["app:webserver"],"type":"metric alert"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "497"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - ValidateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.7.0; terraform-cli 0.14.7) datadog-api-client-go/1.5.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/validate
-    method: POST
-  response:
-    body: '{}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "2"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Fri, 22 Oct 2021 18:19:50 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Envoy-Upstream-Service-Time:
-      - "209"
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: |
-      {"message":"some message Notify: @hipchat-channel","name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1634926787","options":{"escalation_message":"the situation has escalated @pagerduty","include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":2,"warning":1}},"priority":0,"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} \u003e 2","tags":["app:webserver"],"type":"metric alert"}
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Content-Length:
-      - "497"
-      Content-Type:
-      - application/json
-      Dd-Operation-Id:
-      - ValidateMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.7.0; terraform-cli 0.14.7) datadog-api-client-go/1.5.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/validate
-    method: POST
-  response:
-    body: '{}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "2"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Fri, 22 Oct 2021 18:19:50 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: ""
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Dd-Operation-Id:
-      - CancelDowntime
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.7.0; terraform-cli 0.14.7) datadog-api-client-go/1.5.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/downtime/1517850383
-    method: DELETE
-  response:
-    body: ""
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Length:
-      - "0"
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Date:
-      - Fri, 22 Oct 2021 18:19:51 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 204 No Content
-    code: 204
-    duration: ""
-- request:
-    body: ""
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Dd-Operation-Id:
-      - DeleteMonitor
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.7.0; terraform-cli 0.14.7) datadog-api-client-go/1.5.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/monitor/51392666
-    method: DELETE
-  response:
-    body: '{"deleted_monitor_id":51392666}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Fri, 22 Oct 2021 18:19:51 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
-- request:
-    body: ""
-    form: {}
-    headers:
-      Accept:
-      - application/json
-      Dd-Operation-Id:
-      - GetDowntime
-      User-Agent:
-      - terraform-provider-datadog/dev (terraform 2.7.0; terraform-cli 0.14.7) datadog-api-client-go/1.5.0 (go go1.17; os darwin; arch amd64)
-    url: https://api.datadoghq.com/api/v1/downtime/1517850383
-    method: GET
-  response:
-    body: '{"recurrence":null,"end":1634941187,"monitor_tags":["app:webserver"],"child_id":null,"canceled":1634926791,"monitor_id":null,"created":1634926789,"org_id":321813,"modified":1634926791,"disabled":true,"start":1634937587,"creator_id":1445416,"parent_id":null,"timezone":"UTC","active":false,"scope":["*"],"message":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1634926787","downtime_type":0,"id":1517850383,"updater_id":1445416}'
-    headers:
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - frame-ancestors 'self'; report-uri https://api.datadoghq.com/csp-report
-      Content-Type:
-      - application/json
-      Date:
-      - Fri, 22 Oct 2021 18:19:51 GMT
-      Pragma:
-      - no-cache
-      Strict-Transport-Security:
-      - max-age=15724800;
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-    status: 200 OK
-    code: 200
-    duration: ""
+    - id: 0
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 524
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"some message Notify: @hipchat-channel","name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1720031045","options":{"escalation_message":"the situation has escalated @pagerduty","include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":2,"warning":1}},"priority":null,"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} \u003e 2","restricted_roles":null,"tags":["app:webserver"],"type":"metric alert"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/validate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 3
+        uncompressed: false
+        body: |
+            {}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 138.695667ms
+    - id: 1
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 524
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"some message Notify: @hipchat-channel","name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1720031045","options":{"escalation_message":"the situation has escalated @pagerduty","include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":2,"warning":1}},"priority":null,"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} \u003e 2","restricted_roles":null,"tags":["app:webserver"],"type":"metric alert"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/validate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 3
+        uncompressed: false
+        body: |
+            {}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 76.554417ms
+    - id: 2
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 524
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"some message Notify: @hipchat-channel","name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1720031045","options":{"escalation_message":"the situation has escalated @pagerduty","include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":2,"warning":1}},"priority":null,"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} \u003e 2","restricted_roles":null,"tags":["app:webserver"],"type":"metric alert"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/validate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 3
+        uncompressed: false
+        body: |
+            {}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 75.872708ms
+    - id: 3
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 178
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"end":1720045445,"message":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1720031045","monitor_tags":["app:webserver"],"scope":["*"],"start":1720041845,"timezone":"UTC"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/downtime
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"id":4100968995,"monitor_id":null,"org_id":321813,"start":1720041845,"end":1720045445,"canceled":null,"created":1720031047,"modified":1720031047,"message":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1720031045","active":false,"disabled":false,"recurrence":null,"timezone":"UTC","parent_id":null,"child_id":null,"creator_id":1445416,"updater_id":null,"downtime_type":0,"status":"scheduled","monitor_tags":["app:webserver"],"mute_first_recovery_notification":false,"notify_end_types":["expired"],"notify_end_states":["alert","no data","warn"],"uuid":"6f5a8aae-3969-11ef-aeac-da7ad0900002","scope":["*"]}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 261.664292ms
+    - id: 4
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 501
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"some message Notify: @hipchat-channel","name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1720031045","options":{"escalation_message":"the situation has escalated @pagerduty","include_tags":true,"new_host_delay":300,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":2,"warning":1}},"priority":null,"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} \u003e 2","restricted_roles":null,"tags":["app:webserver"],"type":"metric alert"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"id":148510266,"org_id":321813,"type":"metric alert","name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1720031045","message":"some message Notify: @hipchat-channel","tags":["app:webserver"],"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} > 2","options":{"escalation_message":"the situation has escalated @pagerduty","include_tags":true,"new_host_delay":300,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":2.0,"warning":1.0},"notify_audit":false,"silenced":{}},"multi":true,"created_at":1720031047000,"created":"2024-07-03T18:24:07.364458+00:00","modified":"2024-07-03T18:24:07.364458+00:00","deleted":null,"restricted_roles":null,"priority":null,"restriction_policy":null,"overall_state_modified":null,"overall_state":"No Data","creator":{"name":null,"handle":"frog@datadoghq.com","email":"frog@datadoghq.com","id":1445416}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 198.234875ms
+    - id: 5
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/downtime/4100968995
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"id":4100968995,"monitor_id":null,"org_id":321813,"start":1720041845,"end":1720045445,"canceled":null,"created":1720031047,"modified":1720031047,"message":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1720031045","active":false,"disabled":false,"recurrence":null,"timezone":"UTC","parent_id":null,"child_id":null,"creator_id":1445416,"updater_id":null,"downtime_type":0,"status":"scheduled","monitor_tags":["app:webserver"],"mute_first_recovery_notification":false,"notify_end_types":["expired"],"notify_end_states":["alert","no data","warn"],"uuid":"6f5a8aae-3969-11ef-aeac-da7ad0900002","scope":["*"]}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 72.626ms
+    - id: 6
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 524
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"some message Notify: @hipchat-channel","name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1720031045","options":{"escalation_message":"the situation has escalated @pagerduty","include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":2,"warning":1}},"priority":null,"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} \u003e 2","restricted_roles":null,"tags":["app:webserver"],"type":"metric alert"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/148510266/validate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 3
+        uncompressed: false
+        body: |
+            {}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 67.209292ms
+    - id: 7
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/downtime/4100968995
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"id":4100968995,"monitor_id":null,"org_id":321813,"start":1720041845,"end":1720045445,"canceled":null,"created":1720031047,"modified":1720031047,"message":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1720031045","active":false,"disabled":false,"recurrence":null,"timezone":"UTC","parent_id":null,"child_id":null,"creator_id":1445416,"updater_id":null,"downtime_type":0,"status":"scheduled","monitor_tags":["app:webserver"],"mute_first_recovery_notification":false,"notify_end_types":["expired"],"notify_end_states":["alert","no data","warn"],"uuid":"6f5a8aae-3969-11ef-aeac-da7ad0900002","scope":["*"]}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 76.097541ms
+    - id: 8
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/148510266
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"id":148510266,"org_id":321813,"type":"metric alert","name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1720031045","message":"some message Notify: @hipchat-channel","tags":["app:webserver"],"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} > 2","options":{"escalation_message":"the situation has escalated @pagerduty","include_tags":true,"new_host_delay":300,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":2.0,"warning":1.0},"notify_audit":false,"silenced":{}},"multi":true,"created_at":1720031047000,"created":"2024-07-03T18:24:07.364458+00:00","modified":"2024-07-03T18:24:07.364458+00:00","deleted":null,"restricted_roles":null,"priority":null,"overall_state_modified":null,"overall_state":"No Data","creator":{"name":null,"email":"frog@datadoghq.com","handle":"frog@datadoghq.com","id":1445416}}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 127.0955ms
+    - id: 9
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 524
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"some message Notify: @hipchat-channel","name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1720031045","options":{"escalation_message":"the situation has escalated @pagerduty","include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":2,"warning":1}},"priority":null,"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} \u003e 2","restricted_roles":null,"tags":["app:webserver"],"type":"metric alert"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/148510266/validate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 3
+        uncompressed: false
+        body: |
+            {}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 87.042459ms
+    - id: 10
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 524
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: |
+            {"message":"some message Notify: @hipchat-channel","name":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1720031045","options":{"escalation_message":"the situation has escalated @pagerduty","include_tags":true,"new_host_delay":300,"no_data_timeframe":10,"notify_no_data":false,"require_full_window":true,"thresholds":{"critical":2,"warning":1}},"priority":null,"query":"avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} \u003e 2","restricted_roles":null,"tags":["app:webserver"],"type":"metric alert"}
+        form: {}
+        headers:
+            Accept:
+                - application/json
+            Content-Type:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/148510266/validate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 3
+        uncompressed: false
+        body: |
+            {}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 91.664209ms
+    - id: 11
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - '*/*'
+        url: https://api.datadoghq.com/api/v1/downtime/4100968995
+        method: DELETE
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 0
+        uncompressed: false
+        body: ""
+        headers:
+            Content-Type:
+                - text/html; charset=utf-8
+        status: 204 No Content
+        code: 204
+        duration: 158.885375ms
+    - id: 12
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/monitor/148510266
+        method: DELETE
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"deleted_monitor_id":148510266}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 317.2355ms
+    - id: 13
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.datadoghq.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Accept:
+                - application/json
+        url: https://api.datadoghq.com/api/v1/downtime/4100968995
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: |
+            {"id":4100968995,"monitor_id":null,"org_id":321813,"start":1720041845,"end":1720045445,"canceled":1720031049,"created":1720031047,"modified":1720031049,"message":"tf-TestAccDatadogDowntime_BasicWithMonitorTags-local-1720031045","active":false,"disabled":true,"recurrence":null,"timezone":"UTC","parent_id":null,"child_id":null,"creator_id":1445416,"updater_id":1445416,"downtime_type":0,"status":"canceled","monitor_tags":["app:webserver"],"mute_first_recovery_notification":false,"notify_end_types":["expired"],"notify_end_states":["alert","no data","warn"],"uuid":"6f5a8aae-3969-11ef-aeac-da7ad0900002","scope":["*"]}
+        headers:
+            Content-Type:
+                - application/json
+        status: 200 OK
+        code: 200
+        duration: 54.073708ms

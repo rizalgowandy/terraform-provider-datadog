@@ -1,0 +1,64 @@
+name: Run Integration Tests
+
+on: # yamllint disable-line rule:truthy
+  pull_request:
+    types:
+      - labeled
+      - unlabeled
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  schedule:
+    - cron: "0 */12 * * *"
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}-test-integration
+  cancel-in-progress: true
+
+env:
+  TERRAFORM_VERSION: "1.5.3"
+
+jobs:
+  integration_tests:
+    runs-on: ubuntu-latest
+    if: (github.event_name == 'pull_request' && github.event.pull_request.draft == false && contains(github.event.pull_request.labels.*.name, 'ci/integrations')) || github.event_name == 'schedule'
+    steps:
+      - name: Start the Datadog Agent locally
+        uses: datadog/agent-github-action@v1
+        with:
+          api_key: ${{ secrets.DD_API_KEY }}
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Install Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.23"
+          cache: true
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/terraform
+          key: terraform-${{ env.TERRAFORM_VERSION }}
+      - name: Install terraform
+        run: |
+          mkdir -p ~/.cache/terraform
+          if [ ! -f ~/.cache/terraform/terraform-${{ env.TERRAFORM_VERSION }} ]; then
+            wget https://releases.hashicorp.com/terraform/${{ env.TERRAFORM_VERSION }}/terraform_${{ env.TERRAFORM_VERSION }}_linux_amd64.zip -O ~/.cache/terraform/terraform-${{ env.TERRAFORM_VERSION }}
+          fi
+          unzip -o -d ~/.cache/terraform ~/.cache/terraform/terraform-${{ env.TERRAFORM_VERSION }}
+      - name: Run integration tests
+        run: make testacc
+        env:
+          RECORD: "none"
+          CI: "true"
+          DD_AGENT_HOST: localhost
+          DD_PROFILER_API_KEY: ${{ secrets.DD_API_KEY }}
+          DD_TEST_CLIENT_API_KEY: ${{ secrets.DD_CLIENT_API_KEY }}
+          DD_TEST_CLIENT_APP_KEY: ${{ secrets.DD_CLIENT_APP_KEY }}
+          DD_HTTP_CLIENT_RETRY_ENABLED: "true"
+          DD_ENV: prod
+          DD_SERVICE: terraform-provider-datadog
+          DD_VERSION: ${{ github.run_id }}
+          DD_TAGS: "team:integrations-tools-and-libraries"
+          TF_ACC_TERRAFORM_PATH: "/home/runner/.cache/terraform/terraform"
+          TF_ACC_TEMP_DIR: "/tmp"

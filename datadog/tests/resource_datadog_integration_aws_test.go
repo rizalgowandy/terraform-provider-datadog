@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/terraform-providers/terraform-provider-datadog/datadog"
+	"github.com/terraform-providers/terraform-provider-datadog/datadog/fwprovider"
+	"github.com/terraform-providers/terraform-provider-datadog/datadog/internal/utils"
 
-	datadogV1 "github.com/DataDog/datadog-api-client-go/api/v1/datadog"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 func testAccDatadogIntegrationAWSConfig(uniq string) string {
@@ -33,34 +32,49 @@ resource "datadog_integration_aws" "account" {
     	    opsworks = true
   	}
   	excluded_regions                 = ["us-east-1", "us-west-2"]
+	metrics_collection_enabled       = false
+	resource_collection_enabled      = true
+	cspm_resource_collection_enabled = true
 }`, uniq)
 }
 
 func TestAccDatadogIntegrationAWS(t *testing.T) {
-	ctx, accProviders := testAccProviders(context.Background(), t)
+	t.Parallel()
+	ctx, providers, accProviders := testAccFrameworkMuxProviders(context.Background(), t)
 	accountID := uniqueAWSAccountID(ctx, t)
-	accProvider := testAccProvider(t, accProviders)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: accProviders,
-		CheckDestroy:      checkIntegrationAWSDestroy(accProvider),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: accProviders,
+		CheckDestroy:             checkIntegrationAWSDestroy(providers.frameworkProvider),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDatadogIntegrationAWSConfig(accountID),
 				Check: resource.ComposeTestCheckFunc(
-					checkIntegrationAWSExists(accProvider),
+					checkIntegrationAWSExists(providers.frameworkProvider),
 					resource.TestCheckResourceAttr(
 						"datadog_integration_aws.account",
 						"account_id", accountID),
 					resource.TestCheckResourceAttr(
 						"datadog_integration_aws.account",
 						"role_name", "1234@testacc-datadog-integration-role"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_aws.account",
+						"metrics_collection_enabled", "true"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_aws.account",
+						"resource_collection_enabled", "false"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_aws.account",
+						"cspm_resource_collection_enabled", "false"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_aws.account",
+						"extended_resource_collection_enabled", "false"),
 				),
 			}, {
 				Config: testAccDatadogIntegrationAWSUpdateConfig(accountID),
 				Check: resource.ComposeTestCheckFunc(
-					checkIntegrationAWSExists(accProvider),
+					checkIntegrationAWSExists(providers.frameworkProvider),
 					resource.TestCheckResourceAttr(
 						"datadog_integration_aws.account",
 						"account_id", accountID),
@@ -88,12 +102,24 @@ func TestAccDatadogIntegrationAWS(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"datadog_integration_aws.account",
 						"excluded_regions.1", "us-west-2"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_aws.account",
+						"metrics_collection_enabled", "false"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_aws.account",
+						"resource_collection_enabled", "true"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_aws.account",
+						"cspm_resource_collection_enabled", "true"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_aws.account",
+						"extended_resource_collection_enabled", "true"),
 				),
 			},
 			{
 				Config: testAccDatadogIntegrationAWSConfig(accountID),
 				Check: resource.ComposeTestCheckFunc(
-					checkIntegrationAWSExists(accProvider),
+					checkIntegrationAWSExists(providers.frameworkProvider),
 					resource.TestCheckResourceAttr(
 						"datadog_integration_aws.account",
 						"account_id", accountID),
@@ -112,24 +138,35 @@ func TestAccDatadogIntegrationAWS(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"datadog_integration_aws.account",
 						"account_specific_namespace_rules.#", "0"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_aws.account",
+						"metrics_collection_enabled", "false"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_aws.account",
+						"resource_collection_enabled", "true"),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_aws.account",
+						"cspm_resource_collection_enabled", "true"),
 				),
 			},
 		},
 	})
 }
 
-func testAccDatadogIntegrationAWSAccessKeyConfig(uniq string) string {
+func testAccDatadogIntegrationAWSAccessKeyConfig(access_key_id string, account_id string) string {
 	return fmt.Sprintf(`
 resource "datadog_integration_aws" "account_access_key" {
+	account_id                          = "%s"
   	access_key_id                       = "%s"
   	secret_access_key                   = "testacc-datadog-integration-secret"
-}`, uniq)
+}`, account_id, access_key_id)
 }
 
-func testAccDatadogIntegrationAWSAccessKeyUpdateConfig(uniq string) string {
+func testAccDatadogIntegrationAWSAccessKeyUpdateConfig(access_key_id string, account_id string) string {
 	return fmt.Sprintf(`
 resource "datadog_integration_aws" "account_access_key" {
-  	access_key_id                    = "%s"
+	account_id                       = "%s"
+	access_key_id                    = "%s"
   	secret_access_key                = "testacc-datadog-integration-secret"
 	filter_tags                      = ["key:value"]
   	host_tags                        = ["key:value", "key2:value2"]
@@ -138,23 +175,24 @@ resource "datadog_integration_aws" "account_access_key" {
     	    opsworks = true
   	}
   	excluded_regions                 = ["us-east-1", "us-west-2"]
-}`, uniq)
+}`, account_id, access_key_id)
 }
 
 func TestAccDatadogIntegrationAWSAccessKey(t *testing.T) {
-	ctx, accProviders := testAccProviders(context.Background(), t)
+	t.Parallel()
+	ctx, providers, accProviders := testAccFrameworkMuxProviders(context.Background(), t)
 	accessKeyID := uniqueAWSAccessKeyID(ctx, t)
-	accProvider := testAccProvider(t, accProviders)
+	accountID := uniqueAWSAccountID(ctx, t)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: accProviders,
-		CheckDestroy:      checkIntegrationAWSDestroy(accProvider),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: accProviders,
+		CheckDestroy:             checkIntegrationAWSDestroy(providers.frameworkProvider),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatadogIntegrationAWSAccessKeyConfig(accessKeyID),
+				Config: testAccDatadogIntegrationAWSAccessKeyConfig(accessKeyID, accountID),
 				Check: resource.ComposeTestCheckFunc(
-					checkIntegrationAWSExists(accProvider),
+					checkIntegrationAWSExists(providers.frameworkProvider),
 					resource.TestCheckResourceAttr(
 						"datadog_integration_aws.account_access_key",
 						"access_key_id", accessKeyID),
@@ -163,9 +201,12 @@ func TestAccDatadogIntegrationAWSAccessKey(t *testing.T) {
 						"secret_access_key", "testacc-datadog-integration-secret"),
 				),
 			}, {
-				Config: testAccDatadogIntegrationAWSAccessKeyUpdateConfig(accessKeyID),
+				Config: testAccDatadogIntegrationAWSAccessKeyUpdateConfig(accessKeyID, accountID),
 				Check: resource.ComposeTestCheckFunc(
-					checkIntegrationAWSExists(accProvider),
+					checkIntegrationAWSExists(providers.frameworkProvider),
+					resource.TestCheckResourceAttr(
+						"datadog_integration_aws.account_access_key",
+						"account_id", accountID),
 					resource.TestCheckResourceAttr(
 						"datadog_integration_aws.account_access_key",
 						"access_key_id", accessKeyID),
@@ -196,9 +237,9 @@ func TestAccDatadogIntegrationAWSAccessKey(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDatadogIntegrationAWSAccessKeyConfig(accessKeyID),
+				Config: testAccDatadogIntegrationAWSAccessKeyConfig(accessKeyID, accountID),
 				Check: resource.ComposeTestCheckFunc(
-					checkIntegrationAWSExists(accProvider),
+					checkIntegrationAWSExists(providers.frameworkProvider),
 					resource.TestCheckResourceAttr(
 						"datadog_integration_aws.account_access_key",
 						"access_key_id", accessKeyID),
@@ -223,19 +264,17 @@ func TestAccDatadogIntegrationAWSAccessKey(t *testing.T) {
 	})
 }
 
-func checkIntegrationAWSExists(accProvider func() (*schema.Provider, error)) func(*terraform.State) error {
+func checkIntegrationAWSExists(accProvider *fwprovider.FrameworkProvider) func(*terraform.State) error {
 	return func(s *terraform.State) error {
-		provider, _ := accProvider()
-		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV1 := providerConf.DatadogClientV1
-		authV1 := providerConf.AuthV1
+		apiInstances := accProvider.DatadogApiInstances
+		auth := accProvider.Auth
 
-		return checkIntegrationAWSExistsHelper(authV1, s, datadogClientV1)
+		return checkIntegrationAWSExistsHelper(auth, s, apiInstances)
 	}
 }
 
-func checkIntegrationAWSExistsHelper(ctx context.Context, s *terraform.State, datadogClientV1 *datadogV1.APIClient) error {
-	integrations, _, err := datadogClientV1.AWSIntegrationApi.ListAWSAccounts(ctx)
+func checkIntegrationAWSExistsHelper(ctx context.Context, s *terraform.State, apiInstances *utils.ApiInstances) error {
+	integrations, _, err := apiInstances.GetAWSIntegrationApiV1().ListAWSAccounts(ctx)
 	if err != nil {
 		return err
 	}
@@ -253,19 +292,17 @@ func checkIntegrationAWSExistsHelper(ctx context.Context, s *terraform.State, da
 	return nil
 }
 
-func checkIntegrationAWSDestroy(accProvider func() (*schema.Provider, error)) func(*terraform.State) error {
+func checkIntegrationAWSDestroy(accProvider *fwprovider.FrameworkProvider) func(*terraform.State) error {
 	return func(s *terraform.State) error {
-		provider, _ := accProvider()
-		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV1 := providerConf.DatadogClientV1
-		authV1 := providerConf.AuthV1
+		apiInstances := accProvider.DatadogApiInstances
+		auth := accProvider.Auth
 
-		return checkIntegrationAWSDestroyHelper(authV1, s, datadogClientV1)
+		return checkIntegrationAWSDestroyHelper(auth, s, apiInstances)
 	}
 }
 
-func checkIntegrationAWSDestroyHelper(ctx context.Context, s *terraform.State, datadogClientV1 *datadogV1.APIClient) error {
-	integrations, _, err := datadogClientV1.AWSIntegrationApi.ListAWSAccounts(ctx)
+func checkIntegrationAWSDestroyHelper(ctx context.Context, s *terraform.State, apiInstances *utils.ApiInstances) error {
+	integrations, _, err := apiInstances.GetAWSIntegrationApiV1().ListAWSAccounts(ctx)
 	if err != nil {
 		return err
 	}

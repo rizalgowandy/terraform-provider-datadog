@@ -3,17 +3,22 @@ package test
 import (
 	"context"
 	"fmt"
+	"log"
 	"testing"
 
-	"github.com/terraform-providers/terraform-provider-datadog/datadog"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
+	"github.com/terraform-providers/terraform-provider-datadog/datadog"
 )
 
 func TestAccDatadogSyntheticsPrivateLocation_importBasic(t *testing.T) {
 	t.Parallel()
+	if !isReplaying() {
+		log.Println("Skipping private locations tests in non replaying mode")
+		return
+	}
 	ctx, accProviders := testAccProviders(context.Background(), t)
 	privateLocationName := uniqueEntityName(ctx, t)
 	accProvider := testAccProvider(t, accProviders)
@@ -38,6 +43,10 @@ func TestAccDatadogSyntheticsPrivateLocation_importBasic(t *testing.T) {
 
 func TestAccDatadogSyntheticsPrivateLocation_Basic(t *testing.T) {
 	t.Parallel()
+	if !isReplaying() {
+		log.Println("Skipping private locations tests in non replaying mode")
+		return
+	}
 	ctx, accProviders := testAccProviders(context.Background(), t)
 	accProvider := testAccProvider(t, accProviders)
 
@@ -53,6 +62,10 @@ func TestAccDatadogSyntheticsPrivateLocation_Basic(t *testing.T) {
 
 func TestAccDatadogSyntheticsPrivateLocation_Updated(t *testing.T) {
 	t.Parallel()
+	if !isReplaying() {
+		log.Println("Skipping private locations tests in non replaying mode")
+		return
+	}
 	ctx, accProviders := testAccProviders(context.Background(), t)
 	accProvider := testAccProvider(t, accProviders)
 
@@ -91,13 +104,13 @@ func createSyntheticsPrivateLocationStep(ctx context.Context, accProvider func()
 	}
 }
 
-func createSyntheticsPrivateLocationConfig(uniq string) string {
+func createSyntheticsPrivateLocationConfig(uniqPrivateLocation string) string {
 	return fmt.Sprintf(`
 resource "datadog_synthetics_private_location" "foo" {
 	name = "%s"
 	description = "a private location"
 	tags = ["foo:bar", "baz"]
-}`, uniq)
+}`, uniqPrivateLocation)
 }
 
 func updateSyntheticsPrivateLocationStep(ctx context.Context, accProvider func() (*schema.Provider, error), t *testing.T) resource.TestStep {
@@ -126,24 +139,28 @@ func updateSyntheticsPrivateLocationStep(ctx context.Context, accProvider func()
 	}
 }
 
-func updateSyntheticsPrivateLocationConfig(uniq string) string {
+func updateSyntheticsPrivateLocationConfig(uniqPrivateLocation string) string {
 	return fmt.Sprintf(`
 resource "datadog_synthetics_private_location" "foo" {
 	name = "%s"
 	description = "an updated private location"
 	tags = ["foo:bar", "baz", "env:test"]
-}`, uniq)
+}`, uniqPrivateLocation)
 }
 
 func testSyntheticsPrivateLocationExists(accProvider func() (*schema.Provider, error)) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		provider, _ := accProvider()
 		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV1 := providerConf.DatadogClientV1
-		authV1 := providerConf.AuthV1
+		apiInstances := providerConf.DatadogApiInstances
+		auth := providerConf.Auth
 
 		for _, r := range s.RootModule().Resources {
-			if _, _, err := datadogClientV1.SyntheticsApi.GetPrivateLocation(authV1, r.Primary.ID); err != nil {
+			if r.Type == "datadog_role" {
+				continue
+			}
+
+			if _, _, err := apiInstances.GetSyntheticsApiV1().GetPrivateLocation(auth, r.Primary.ID); err != nil {
 				return fmt.Errorf("received an error retrieving synthetics private location %s", err)
 			}
 		}
@@ -155,11 +172,15 @@ func testSyntheticsPrivateLocationIsDestroyed(accProvider func() (*schema.Provid
 	return func(s *terraform.State) error {
 		provider, _ := accProvider()
 		providerConf := provider.Meta().(*datadog.ProviderConfiguration)
-		datadogClientV1 := providerConf.DatadogClientV1
-		authV1 := providerConf.AuthV1
+		apiInstances := providerConf.DatadogApiInstances
+		auth := providerConf.Auth
 
 		for _, r := range s.RootModule().Resources {
-			if _, httpresp, err := datadogClientV1.SyntheticsApi.GetPrivateLocation(authV1, r.Primary.ID); err != nil {
+			if r.Type == "datadog_role" {
+				continue
+			}
+
+			if _, httpresp, err := apiInstances.GetSyntheticsApiV1().GetPrivateLocation(auth, r.Primary.ID); err != nil {
 				if httpresp != nil && httpresp.StatusCode == 404 {
 					continue
 				}
